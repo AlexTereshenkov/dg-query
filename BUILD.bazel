@@ -1,0 +1,15 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "main",
+    srcs = ["main.go"],
+    importpath = "dg-query",
+    visibility = ["//visibility:private"],
+    deps = ["//cmd"],
+)
+
+go_binary(
+    name = "dg-query",
+    embed = [":main"],
+    visibility = ["//visibility:public"],
+)
