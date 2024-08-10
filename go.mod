@@ -1,4 +1,4 @@
-module dg-query
+module github.com/AlexTereshenkov/dg-query
 
 go 1.22
 
