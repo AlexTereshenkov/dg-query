@@ -23,21 +23,21 @@ dg-query # should run the app
 These are the commands one would run to build and run the app.
 
 ```shell
-# download `buildifier` into the `$GOPATH/bin` directory, if not installed, and reformat
+# download `buildifier` into the `$GOPATH/bin` directory, if not installed, and reformat;
+# alternatively, running `gazelle` would reformat the BUILD files, too
 go install github.com/bazelbuild/buildtools/buildifier@latest
 buildifier -r .
 
-# update 3rd-party dependencies
-gazelle update-repos -from_file=go.mod -to_macro=deps.bzl%go_dependencies -prune
+# update local BUILD files and update 3rd-party dependencies
+bazel run //:gazelle && bazel run //:update-deps
 
-# update local BUILD files
-gazelle
+# or run gazelle executable
+gazelle && gazelle update-repos -from_file=go.mod -to_macro=deps.bzl%go_dependencies -prune
 
 # run the app
 bazel build //... && bazel-bin/dg-query_/dg-query
 
-OR
-
+# or run a particular target
 bazel run //:dg-query
 ```
 
