@@ -1,15 +1,32 @@
+load("@bazel_gazelle//:def.bzl", "gazelle")
 load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library")
 
+# gazelle:prefix github.com/AlexTereshenkov/dg-query
+
+# Docs: https://github.com/bazelbuild/bazel-gazelle?tab=readme-ov-file#directives
+gazelle(name = "gazelle")
+
+# Docs: https://github.com/bazelbuild/bazel-gazelle?tab=readme-ov-file#setup
+gazelle(
+    name = "update-deps",
+    args = [
+        "-from_file=go.mod",
+        "-to_macro=deps.bzl%go_dependencies",
+        "-prune",
+    ],
+    command = "update-repos",
+)
+
 go_library(
-    name = "main",
+    name = "dg-query_lib",
     srcs = ["main.go"],
-    importpath = "dg-query",
+    importpath = "github.com/AlexTereshenkov/dg-query",
     visibility = ["//visibility:private"],
     deps = ["//cmd"],
 )
 
 go_binary(
     name = "dg-query",
-    embed = [":main"],
+    embed = [":dg-query_lib"],
     visibility = ["//visibility:public"],
 )
