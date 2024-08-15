@@ -16,9 +16,9 @@ import (
 /*
 List dependencies for given targets.
 */
-func Dependencies(cmd *cobra.Command, targets []string) {
+func dependencies(cmd *cobra.Command, targets []string) {
 	filePath, _ := cmd.Flags().GetString("dg")
-	jsonData := readFile(filePath)
+	jsonData := ReadFile(filePath)
 	adjacencyList := loadJsonFile(jsonData)
 
 	var deps []string
@@ -26,11 +26,12 @@ func Dependencies(cmd *cobra.Command, targets []string) {
 		deps = append(deps, adjacencyList[target]...)
 	}
 	output := strings.Join(deps, "\n")
-	fmt.Println(output)
+	fmt.Fprintln(cmd.OutOrStdout(), output)
 
 }
 
-func readFile(filePath string) []byte {
+// TODO: use interfaces instead to make mocking possible under test
+var ReadFile = func(filePath string) []byte {
 	jsonData, readingFileError := os.ReadFile(filePath)
 	if readingFileError != nil {
 		panic(readingFileError)
