@@ -1,0 +1,11 @@
+{
+    "foo.py": [
+        "bar.py",
+        "bla.py"
+    ],
+    "spam.py": [
+        "eggs.py",
+        "ham.py"
+    ]
+
+}
