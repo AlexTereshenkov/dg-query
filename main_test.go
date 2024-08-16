@@ -27,7 +27,7 @@ func TestDependencies(t *testing.T) {
 		{
 			"foo.py": [
 				"bar.py",
-				"bla.py"
+				"baz.py"
 			],
 			"spam.py": [
 				"eggs.py",
@@ -40,7 +40,7 @@ func TestDependencies(t *testing.T) {
 	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "foo.py"})
 	cmd.RootCmd.Execute()
 
-	expected := "bar.py\nbla.py\n"
+	expected := "bar.py\nbaz.py\n"
 	actualOutput := buf.String()
 	assert.Equal(t, expected, actualOutput, "Failing assertion")
 }
