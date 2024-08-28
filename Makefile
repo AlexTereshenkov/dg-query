@@ -1,4 +1,5 @@
 build-go:
+	go fmt
 	go build
 	go install
 	dg-query
@@ -10,3 +11,4 @@ run-go:
 build-bazel:
 	bazel run //:dg-query
 	bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
+	bazel test //...
