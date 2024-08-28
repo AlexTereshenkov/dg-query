@@ -30,7 +30,6 @@ func dependencies(cmd *cobra.Command, targets []string) {
 
 }
 
-// TODO: use interfaces instead to make mocking possible under test
 var ReadFile = func(filePath string) []byte {
 	jsonData, readingFileError := os.ReadFile(filePath)
 	if readingFileError != nil {

@@ -5,6 +5,7 @@ package main
 
 import (
 	"bytes"
+	"strings"
 	"testing"
 
 	"github.com/AlexTereshenkov/dg-query/cmd"
@@ -37,10 +38,28 @@ func TestDependencies(t *testing.T) {
 		}		
 		`)
 	}
+	var expected []string
+
 	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "foo.py"})
 	cmd.RootCmd.Execute()
+	expected = []string{"bar.py", "baz.py"}
+	actualOutput := strings.Split(buf.String(), "\n")[:2]
+	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
+	buf.Reset()
 
-	expected := "bar.py\nbaz.py\n"
-	actualOutput := buf.String()
-	assert.Equal(t, expected, actualOutput, "Failing assertion")
+	// asking for non-existing node
+	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "non-existing.py"})
+	cmd.RootCmd.Execute()
+	expected = []string{"\n"}
+	actualOutput = strings.Split(buf.String(), "")
+	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
+	buf.Reset()
+
+	// asking for multiple nodes
+	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "foo.py", "spam.py"})
+	cmd.RootCmd.Execute()
+	expected = []string{"bar.py", "baz.py", "eggs.py", "ham.py"}
+	actualOutput = strings.Split(buf.String(), "\n")[:4]
+	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
+	buf.Reset()
 }
