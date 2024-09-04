@@ -1,9 +1,25 @@
 steps:
   - label: ":bazel: Build"
     commands:
+      
+      - "echo '--- Prepare environment'"
       - sudo apt-get install wget
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
+      
+      - "echo '--- Build'"
       - bazel --version
       - bazel build //...
+      
+      - "echo '--- Static checks'"
+      - bazel run //:gazelle -- -mode=diff
+
+      - "echo '--- Run'"
+      - bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
+      
+      - "echo '--- Test'"
+      - bazel test --test_output=all --test_summary=detailed //... 
+
+    artifact_paths: 
+      - bazel-testlogs/dg-query_test/test.xml

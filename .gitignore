@@ -1,2 +1,4 @@
 **/bazel-*
 dg-query
+
+.vscode
