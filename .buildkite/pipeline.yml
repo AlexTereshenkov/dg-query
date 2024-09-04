@@ -14,6 +14,10 @@ steps:
       
       - "echo '--- Static checks'"
       - bazel run //:gazelle -- -mode=diff
+      - |
+        if bazel run @go_sdk//:bin/gofmt -- -s -l . 2> /dev/null; then
+          exit 1
+        fi
 
       - "echo '--- Run'"
       - bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
