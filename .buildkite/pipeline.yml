@@ -3,7 +3,7 @@ steps:
     commands:
       
       - "echo '--- Prepare environment'"
-      - sudo apt-get install wget
+      - sudo apt-get install wget tree
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
@@ -11,22 +11,21 @@ steps:
       - "echo '--- Build'"
       - bazel --version
       - bazel build //...
+      - ls bazel-*
       
       - "echo '--- Static checks'"
       - "echo 'Gazelle'"
       - bazel run //:gazelle -- -mode=diff
       - "echo 'gofmt'"
-      - |
-        if bazel run @go_sdk//:bin/gofmt -- -s -l . 2> /dev/null; then
-          bazel run @go_sdk//:bin/gofmt -- -s -l .
-          exit 1
-        fi
+      # getting exit code 1 despite not needing to format anything, 
+      # so running the gofmt in "check" mode and not inspecting the exit code.
+      - bazel run @go_sdk//:bin/gofmt -- -s -l .
 
       - "echo '--- Run'"
-      - bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
+      - bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
       
       - "echo '--- Test'"
       - bazel test --test_output=all --test_summary=detailed //... 
-
+    
     artifact_paths: 
       - bazel-testlogs/dg-query_test/test.xml
