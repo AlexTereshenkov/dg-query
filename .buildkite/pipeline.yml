@@ -13,9 +13,12 @@ steps:
       - bazel build //...
       
       - "echo '--- Static checks'"
+      - "echo 'Gazelle'"
       - bazel run //:gazelle -- -mode=diff
+      - "echo 'gofmt'"
       - |
         if bazel run @go_sdk//:bin/gofmt -- -s -l . 2> /dev/null; then
+          bazel run @go_sdk//:bin/gofmt -- -s -l .
           exit 1
         fi
 
