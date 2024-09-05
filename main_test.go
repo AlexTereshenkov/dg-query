@@ -63,3 +63,66 @@ func TestDependencies(t *testing.T) {
 	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
 	buf.Reset()
 }
+
+func TestDependenciesTransitive(t *testing.T) {
+
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cases := []struct {
+		input    []byte
+		expected []string
+	}{
+		// plain transitive dependencies
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"bar.py",
+					"baz.py"
+				],
+				"bar.py": [
+					"eggs.py",
+					"ham.py"
+				],
+				"eggs.py": [
+					"cheese.py"
+				]
+			}		
+			`),
+			expected: []string{"bar.py", "baz.py", "eggs.py", "ham.py", "cheese.py"},
+		},
+		// circular dependencies
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"bar.py",
+					"baz.py"
+				],
+				"bar.py": [
+					"foo.py",
+					"ham.py"
+				],
+				"eggs.py": [
+					"cheese.py"
+				]
+			}		
+			`),
+			expected: []string{"bar.py", "baz.py", "foo.py", "ham.py"},
+		},
+	}
+
+	for _, testCase := range cases {
+		// mocking function that reads a file from disk
+		cmd.ReadFile = func(filePath string) []byte {
+			return testCase.input
+		}
+		cmd.RootCmd.SetArgs([]string{"dependencies", "--transitive", "--dg=dg.json", "foo.py"})
+		cmd.RootCmd.Execute()
+		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
+		assert.ElementsMatch(t, testCase.expected, actualOutput, "Failing assertion")
+		buf.Reset()
+	}
+}
