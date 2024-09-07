@@ -27,7 +27,35 @@ func TestDependenciesDirect(t *testing.T) {
 		expected []string
 		targets  []string
 	}{
-		// plain
+		// empty graph
+		{
+			input:    []byte(`{}`),
+			expected: []string{},
+			targets:  []string{"foo.py"},
+		},
+		// node with no dependencies
+		{
+			input: []byte(`
+		{
+			"foo.py": []
+		
+		}		
+		`),
+			expected: []string{},
+			targets:  []string{"foo.py"},
+		},
+		// node with dependency on itself
+		{
+			input: []byte(`
+		{
+			"foo.py": ["foo.py"]
+		
+		}		
+		`),
+			expected: []string{"foo.py"},
+			targets:  []string{"foo.py"},
+		},
+		// node with some dependencies
 		{
 			input: []byte(`
 		{
@@ -107,7 +135,22 @@ func TestDependenciesTransitive(t *testing.T) {
 		expected []string
 		targets  []string
 	}{
-		// plain transitive dependencies
+		// plain transitive dependencies, one level only
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"bar.py",
+					"baz.py"
+				],
+				"bar.py": [],
+				"baz.py": []
+			}		
+			`),
+			expected: []string{"bar.py", "baz.py"},
+			targets:  []string{"foo.py"},
+		},
+		// plain transitive dependencies, many levels
 		{
 			input: []byte(`
 			{
@@ -162,7 +205,7 @@ func TestDependenciesTransitive(t *testing.T) {
 			expected: []string{"bar.py"},
 			targets:  []string{"foo.py"},
 		},
-		// only circular dependencies (both circle targets)
+		// transitive circular dependency
 		{
 			input: []byte(`
 			{
@@ -170,12 +213,16 @@ func TestDependenciesTransitive(t *testing.T) {
 					"bar.py"
 				],
 				"bar.py": [
+					"baz.py"
+				],
+				"baz.py": [
 					"foo.py"
 				]
+
 			}		
 			`),
-			expected: []string{"bar.py", "foo.py"},
-			targets:  []string{"foo.py", "bar,py"},
+			expected: []string{"bar.py", "baz.py", "foo.py"},
+			targets:  []string{"foo.py"},
 		},
 	}
 
