@@ -55,6 +55,18 @@ func TestDependenciesDirect(t *testing.T) {
 			expected: []string{"foo.py"},
 			targets:  []string{"foo.py"},
 		},
+		// circular dependency
+		{
+			input: []byte(`
+		{
+			"foo.py": ["bar.py"],
+			"bar.py": ["foo.py"]
+		
+		}		
+		`),
+			expected: []string{"bar.py"},
+			targets:  []string{"foo.py"},
+		},
 		// node with some dependencies
 		{
 			input: []byte(`
