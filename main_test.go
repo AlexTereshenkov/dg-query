@@ -12,7 +12,7 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-func TestDependencies(t *testing.T) {
+func TestDependenciesDirect(t *testing.T) {
 
 	var buf bytes.Buffer
 	// redirection is not required for any subcommands, but this is how it's done for the reference:
@@ -22,9 +22,14 @@ func TestDependencies(t *testing.T) {
 	cmd.RootCmd.SetOut(&buf)
 	cmd.RootCmd.SetErr(&buf)
 
-	// mocking function that reads a file from disk
-	cmd.ReadFile = func(filePath string) []byte {
-		return []byte(`
+	cases := []struct {
+		input    []byte
+		expected []string
+		targets  []string
+	}{
+		// plain
+		{
+			input: []byte(`
 		{
 			"foo.py": [
 				"bar.py",
@@ -36,32 +41,59 @@ func TestDependencies(t *testing.T) {
 			]
 		
 		}		
-		`)
+		`),
+			expected: []string{"bar.py", "baz.py"},
+			targets:  []string{"foo.py"},
+		},
+		// asking for non-existing node
+		{
+			input: []byte(`
+				{
+					"foo.py": [
+						"bar.py",
+						"baz.py"
+					],
+					"spam.py": [
+						"eggs.py",
+						"ham.py"
+					]
+				
+				}		
+				`),
+			expected: []string{},
+			targets:  []string{"non-existing.py"},
+		},
+		// asking for multiple nodes
+		{
+			input: []byte(`
+				{
+					"foo.py": [
+						"bar.py",
+						"baz.py"
+					],
+					"spam.py": [
+						"eggs.py",
+						"ham.py"
+					]
+				
+				}		
+				`),
+			expected: []string{"bar.py", "baz.py", "eggs.py", "ham.py"},
+			targets:  []string{"foo.py", "spam.py"},
+		},
 	}
-	var expected []string
 
-	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "foo.py"})
-	cmd.RootCmd.Execute()
-	expected = []string{"bar.py", "baz.py"}
-	actualOutput := strings.Split(buf.String(), "\n")[:2]
-	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
-	buf.Reset()
-
-	// asking for non-existing node
-	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "non-existing.py"})
-	cmd.RootCmd.Execute()
-	expected = []string{"\n"}
-	actualOutput = strings.Split(buf.String(), "")
-	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
-	buf.Reset()
-
-	// asking for multiple nodes
-	cmd.RootCmd.SetArgs([]string{"dependencies", "--dg=dg.json", "foo.py", "spam.py"})
-	cmd.RootCmd.Execute()
-	expected = []string{"bar.py", "baz.py", "eggs.py", "ham.py"}
-	actualOutput = strings.Split(buf.String(), "\n")[:4]
-	assert.ElementsMatch(t, expected, actualOutput, "Failing assertion")
-	buf.Reset()
+	for _, testCase := range cases {
+		// mocking function that reads a file from disk
+		cmd.ReadFile = func(filePath string) []byte {
+			return testCase.input
+		}
+		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--dg=dg.json"}, testCase.targets...))
+		cmd.RootCmd.Execute()
+		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
+		assert.ElementsMatch(t, testCase.expected, actualOutput, "Failing assertion")
+		buf.Reset()
+	}
 }
 
 func TestDependenciesTransitive(t *testing.T) {
@@ -73,6 +105,7 @@ func TestDependenciesTransitive(t *testing.T) {
 	cases := []struct {
 		input    []byte
 		expected []string
+		targets  []string
 	}{
 		// plain transitive dependencies
 		{
@@ -92,8 +125,9 @@ func TestDependenciesTransitive(t *testing.T) {
 			}		
 			`),
 			expected: []string{"bar.py", "baz.py", "eggs.py", "ham.py", "cheese.py"},
+			targets:  []string{"foo.py"},
 		},
-		// circular dependencies
+		// some circular dependencies
 		{
 			input: []byte(`
 			{
@@ -111,6 +145,37 @@ func TestDependenciesTransitive(t *testing.T) {
 			}		
 			`),
 			expected: []string{"bar.py", "baz.py", "foo.py", "ham.py"},
+			targets:  []string{"foo.py"},
+		},
+		// only circular dependencies (single circle target)
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"bar.py"
+				],
+				"bar.py": [
+					"foo.py"
+				]
+			}		
+			`),
+			expected: []string{"bar.py"},
+			targets:  []string{"foo.py"},
+		},
+		// only circular dependencies (both circle targets)
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"bar.py"
+				],
+				"bar.py": [
+					"foo.py"
+				]
+			}		
+			`),
+			expected: []string{"bar.py", "foo.py"},
+			targets:  []string{"foo.py", "bar,py"},
 		},
 	}
 
@@ -119,7 +184,7 @@ func TestDependenciesTransitive(t *testing.T) {
 		cmd.ReadFile = func(filePath string) []byte {
 			return testCase.input
 		}
-		cmd.RootCmd.SetArgs([]string{"dependencies", "--transitive", "--dg=dg.json", "foo.py"})
+		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--transitive", "--dg=dg.json"}, testCase.targets...))
 		cmd.RootCmd.Execute()
 		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
 		assert.ElementsMatch(t, testCase.expected, actualOutput, "Failing assertion")
