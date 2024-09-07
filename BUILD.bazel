@@ -34,8 +34,23 @@ go_binary(
 go_test(
     name = "dg-query_test",
     size = "small",
-    srcs = ["main_test.go"],
+    srcs = [
+        "main_test.go",
+    ],
     embed = [":dg-query_lib"],
+    tags = ["integration"],
+    deps = [
+        "//cmd",
+        "@com_github_stretchr_testify//assert",
+    ],
+)
+
+go_test(
+    name = "dg-query_perf_test",
+    size = "small",
+    srcs = ["main_perf_test.go"],
+    embed = [":dg-query_lib"],
+    tags = ["performance"],
     deps = [
         "//cmd",
         "@com_github_stretchr_testify//assert",
