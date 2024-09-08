@@ -4,7 +4,8 @@
         "baz.py"
     ],
     "spam.py": [
-        "eggs.py",
-        "ham.py"
+        "ham.py",
+        "eggs.py",        
+        "bar.py"
     ]
 }

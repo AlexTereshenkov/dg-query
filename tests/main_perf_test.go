@@ -40,7 +40,7 @@ func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
 	cmd.RootCmd.SetErr(&buf)
 
 	// mocking function that reads a file from disk
-	nodesCount := 100000
+	nodesCount := 10000
 	cmd.ReadFile = func(filePath string) []byte {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
 		return lists

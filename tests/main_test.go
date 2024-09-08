@@ -85,6 +85,21 @@ func TestDependenciesDirect(t *testing.T) {
 			expected: []string{"bar.py", "baz.py"},
 			targets:  []string{"foo.py"},
 		},
+		// nodes with same dependencies (no duplicates in the output)
+		{
+			input: []byte(`
+		{
+			"foo.py": [
+				"bar.py"
+			],
+			"baz.py": [
+				"bar.py"
+			]		
+		}		
+		`),
+			expected: []string{"bar.py"},
+			targets:  []string{"foo.py", "baz.py"},
+		},
 		// asking for non-existing node
 		{
 			input: []byte(`
@@ -131,7 +146,7 @@ func TestDependenciesDirect(t *testing.T) {
 		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--dg=dg.json"}, testCase.targets...))
 		cmd.RootCmd.Execute()
 		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
-		assert.ElementsMatch(t, testCase.expected, actualOutput, "Failing assertion")
+		assert.Equal(t, testCase.expected, actualOutput)
 		buf.Reset()
 	}
 }
@@ -179,7 +194,27 @@ func TestDependenciesTransitive(t *testing.T) {
 				]
 			}		
 			`),
-			expected: []string{"bar.py", "baz.py", "eggs.py", "ham.py", "cheese.py"},
+			expected: []string{"bar.py", "baz.py", "cheese.py", "eggs.py", "ham.py"},
+			targets:  []string{"foo.py"},
+		},
+		// nodes with same dependencies (no duplicates in the output)
+		{
+			input: []byte(`
+		{
+			"foo.py": [
+				"bar.py",
+				"spam.py"
+			],
+			"bar.py": [
+				"baz.py",
+				"spam.py"
+			],
+			"spam.py": [
+				"baz.py"
+			]		
+		}		
+		`),
+			expected: []string{"bar.py", "baz.py", "spam.py"},
 			targets:  []string{"foo.py"},
 		},
 		// some circular dependencies
@@ -246,7 +281,7 @@ func TestDependenciesTransitive(t *testing.T) {
 		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--transitive", "--dg=dg.json"}, testCase.targets...))
 		cmd.RootCmd.Execute()
 		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
-		assert.ElementsMatch(t, testCase.expected, actualOutput, "Failing assertion")
+		assert.Equal(t, testCase.expected, actualOutput)
 		buf.Reset()
 	}
 }

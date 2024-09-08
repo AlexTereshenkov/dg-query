@@ -6,6 +6,7 @@ package cmd
 import (
 	"encoding/json"
 	"fmt"
+	"slices"
 
 	"os"
 	"strings"
@@ -28,6 +29,8 @@ func dependencies(cmd *cobra.Command, targets []string) {
 	} else {
 		deps = getDepsDirect(adjacencyList, targets)
 	}
+	slices.Sort(deps)
+	deps = slices.Compact(deps)
 	output := strings.Join(deps, "\n")
 	fmt.Fprintln(cmd.OutOrStdout(), output)
 
@@ -69,7 +72,6 @@ func getDepsTransitive(adjacencyList map[string][]string, targets []string) []st
 	for _, target := range targets {
 		getDeps(target)
 	}
-
 	return deps
 }
 
