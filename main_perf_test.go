@@ -29,9 +29,12 @@ func createAdjacencyLists(nodesCount int) map[string][]string {
 }
 
 /*
-Testing performance of getting dependencies for a node in a large graph.
+Testing performance of getting dependencies for a node in a 
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
 */
-func TestDependenciesCommandPerf(t *testing.T) {
+func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
+
+	// graphTypes := []func(nodesCount int)map[string][]string{createAdjacencyLists}
 
 	startTime := time.Now()
 	var buf bytes.Buffer
