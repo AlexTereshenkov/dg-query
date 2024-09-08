@@ -34,9 +34,7 @@ go_binary(
 go_test(
     name = "dg-query_test",
     size = "small",
-    srcs = [
-        "main_test.go",
-    ],
+    srcs = ["main_test.go"],
     embed = [":dg-query_lib"],
     tags = ["integration"],
     deps = [
@@ -44,6 +42,7 @@ go_test(
         "@com_github_stretchr_testify//assert",
     ],
 )
+# gazelle:exclude main_perf_test.go
 
 go_test(
     name = "dg-query_perf_test",

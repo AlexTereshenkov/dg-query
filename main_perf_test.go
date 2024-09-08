@@ -29,12 +29,10 @@ func createAdjacencyLists(nodesCount int) map[string][]string {
 }
 
 /*
-Testing performance of getting dependencies for a node in a 
+Testing performance of getting dependencies for a node in a
 deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
 */
 func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
-
-	// graphTypes := []func(nodesCount int)map[string][]string{createAdjacencyLists}
 
 	startTime := time.Now()
 	var buf bytes.Buffer
@@ -63,5 +61,4 @@ func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
 	if elapsedTime.Seconds() > 5 {
 		t.Fatalf("Getting dependencies transitively out of a large graph took too long: %s.", elapsedTime)
 	}
-
 }
