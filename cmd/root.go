@@ -49,6 +49,7 @@ func init() {
 	// will be global for your application.
 	RootCmd.AddCommand(dependenciesCmd)
 	dependenciesCmd.Flags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
+	dependenciesCmd.Flags().BoolP("transitive", "", false, "Get transitive dependencies")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
