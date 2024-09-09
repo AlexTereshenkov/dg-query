@@ -2,6 +2,7 @@ build-go:
 	go fmt
 	go build
 	go install
+	go test ./tests
 	dg-query
 
 run-go:
