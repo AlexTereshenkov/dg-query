@@ -1,50 +1,51 @@
-# Environment setup
+# Documentation
 
-## Local development
+`dg-query` is a command-line utility program to query dependency graph of a codebase. It operates on the [adjacency lists](https://en.wikipedia.org/wiki/Adjacency_list) data stored as a JSON file. Note that this is not a graph library; for advanced graph manipulation and analysis, [`networkx`](https://networkx.org/) would be a great choice. 
 
-Documenting what was done during the project bootstrap. These steps are not required to run.
+The tool is written in Go, built with Bazel, and runs its CI in Buildkite.
 
-```shell
-go env -w GOPATH=$HOME/go
-vi ~/.zshrc
-export PATH="$PATH:/home/$USER/.local/bin:$GOPATH/bin"
+## Dependency graph
 
-go install github.com/spf13/cobra-cli@latest
-go mod init dg-query
-go mod tidy # to update `go.mod` file, if necessary
-cobra-cli init
-go build
-go install # put `dg-query` binary into the `$GOPATH/bin` directory
-dg-query # should run the app
+The `dg-query` is intended to be used to work primarily with the snapshot of the dependency graph of a codebase, with every build target mapped to an array of its direct dependencies e.g.
+
+```json
+{
+    "src/app/main.py": [
+        "src/shared/utils.py", 
+        "src/shared/process.py"
+    ],
+    "src/lib/project.py": [
+        "src/lib/internal/billing/invoice.py", 
+        "src/lib/internal/rpc/process.py"
+    ]
+}
 ```
 
-## Bazel
+If you don't have a sophisticated build system, this kind of data should still be possible to obtain by hacking together some scripts to statically analyze your import statements iteratively building the adjacency lists. 
 
-These are the commands one would run to build and run the app.
+If you use an artifact based build system such as [Pants](https://www.pantsbuild.org/) or [Bazel](https://bazel.build/), exporting the dependency graph is trivial, but may still require some post-processing such as omitting irrelevant subsets of the graph or renaming some build targets for clarity.
 
-```shell
-# download `buildifier` into the `$GOPATH/bin` directory, if not installed, and reformat;
-# alternatively, running `gazelle` would reformat the BUILD files, too
-go install github.com/bazelbuild/buildtools/buildifier@latest
-buildifier -r .
-
-# update local BUILD files and update 3rd-party dependencies
-bazel run //:gazelle && bazel run //:update-deps
-
-# or run gazelle executable
-gazelle && gazelle update-repos -from_file=go.mod -to_macro=deps.bzl%go_dependencies -prune
-
-# run the app
-bazel build //... && bazel-bin/dg-query_/dg-query
-
-# or run a particular target
-bazel run //:dg-query
-```
-
-## CI
+Pants (see [command-line reference](https://www.pantsbuild.org/stable/reference/goals/dependencies)):
 
 ```shell
-gofmt -w .
-go mod tidy
-buildifier -r .
+$ pants dependencies --format=json :: > dg.json
 ```
+
+Bazel (see [Querying dependency graph of a Bazel project](https://alextereshenkov.github.io/querying-dependency-graph-bazel.html)):
+
+```shell
+$ bazel query 'deps(//...)' --output=graph --noimplicit_deps > graph.dot
+# convert dot file to JSON
+```
+
+Build systems allow exporting data about the reverse dependencies (aka dependents), but this is not required for the `dg-query` as it operates solely on the dependencies lists.
+
+## Features
+
+The tool serves as a faster way to query the dependency graph of a project. This is because the targets and their relationships are materialized so there's no need for any kind of runtime evaluation. The downside is that you need to re-export your dependency graph data every time a change that leads to changes in the dependency graph is made.
+
+`dg-query` has a ton of functionality grouped under individual commands:
+
+### `dependencies`
+
+* identify dependencies of given node(s), optionally transitively
