@@ -1,5 +1,5 @@
 build-go:
-	go fmt
+	gofmt -w .
 	go build
 	go install
 	go test ./tests

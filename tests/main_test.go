@@ -312,7 +312,7 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 			expected: []string{"bar.py", "eggs.py", "foo.py", "spam.py"},
 			targets:  []string{"foo.py", "bar.py"},
 		},
-		// empty dependencies with a non-existing target
+		// empty dependencies with a non-existing target (case 1)
 		{
 			input: []byte(`
 			{
@@ -322,6 +322,16 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 			expected: []string{"foo.py"},
 			targets:  []string{"foo.py", "bar.py"},
 		},
+		// empty dependencies with a non-existing target (case 2)
+		{
+			input: []byte(`
+			{
+				"foo.py": []
+			}		
+			`),
+			expected: []string{},
+			targets:  []string{"bar.py"},
+		},		
 		// duplicate input targets
 		{
 			input: []byte(`
