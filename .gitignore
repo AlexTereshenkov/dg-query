@@ -2,3 +2,5 @@
 dg-query
 
 .vscode
+
+dist/
