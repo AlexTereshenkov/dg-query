@@ -285,3 +285,74 @@ func TestDependenciesTransitive(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func TestDependenciesReflexiveClosure(t *testing.T) {
+
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cases := []struct {
+		input    []byte
+		expected []string
+		targets  []string
+	}{
+		// base case
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"spam.py"
+				],
+				"bar.py": [
+					"eggs.py"
+				]
+			}		
+			`),
+			expected: []string{"bar.py", "eggs.py", "foo.py", "spam.py"},
+			targets:  []string{"foo.py", "bar.py"},
+		},
+		// empty dependencies with a non-existing target (case 1)
+		{
+			input: []byte(`
+			{
+				"foo.py": []
+			}		
+			`),
+			expected: []string{"foo.py"},
+			targets:  []string{"foo.py", "bar.py"},
+		},
+		// empty dependencies with a non-existing target (case 2)
+		{
+			input: []byte(`
+			{
+				"foo.py": []
+			}		
+			`),
+			expected: []string{},
+			targets:  []string{"bar.py"},
+		},		
+		// duplicate input targets
+		{
+			input: []byte(`
+			{
+				"foo.py": ["bar.py"]
+			}		
+			`),
+			expected: []string{"bar.py", "foo.py"},
+			targets:  []string{"foo.py", "foo.py"},
+		},
+	}
+
+	for _, testCase := range cases {
+		// mocking function that reads a file from disk
+		cmd.ReadFile = func(filePath string) []byte {
+			return testCase.input
+		}
+		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--reflexive", "--dg=dg.json"}, testCase.targets...))
+		cmd.RootCmd.Execute()
+		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
+		assert.Equal(t, testCase.expected, actualOutput)
+		buf.Reset()
+	}
+}
