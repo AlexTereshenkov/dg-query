@@ -31,7 +31,6 @@ var dependenciesCmd = &cobra.Command{
 
 // JSON file with the dependency graph represented as an adjacency list
 var dg string
-var target string
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the RootCmd.
@@ -50,6 +49,7 @@ func init() {
 	RootCmd.AddCommand(dependenciesCmd)
 	dependenciesCmd.Flags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
 	dependenciesCmd.Flags().BoolP("transitive", "", false, "Get transitive dependencies")
+	dependenciesCmd.Flags().BoolP("reflexive", "", false, "Include input targets in the output")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

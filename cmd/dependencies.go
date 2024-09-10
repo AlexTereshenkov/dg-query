@@ -22,18 +22,35 @@ func dependencies(cmd *cobra.Command, targets []string) {
 	jsonData := ReadFile(filePath)
 	adjacencyList := loadJsonFile(jsonData)
 	var deps []string
-	transitive, _ := cmd.Flags().GetBool("transitive")
 
-	if transitive == true {
+	transitive, _ := cmd.Flags().GetBool("transitive")
+	if transitive {
 		deps = getDepsTransitive(adjacencyList, targets)
 	} else {
 		deps = getDepsDirect(adjacencyList, targets)
+	}
+
+	reflexive, _ := cmd.Flags().GetBool("reflexive")
+	if reflexive {
+		reflexiveTargets := getReflexiveTargets(targets, adjacencyList)
+		deps = append(deps, reflexiveTargets...)
 	}
 	slices.Sort(deps)
 	deps = slices.Compact(deps)
 	output := strings.Join(deps, "\n")
 	fmt.Fprintln(cmd.OutOrStdout(), output)
 
+}
+
+func getReflexiveTargets(targets []string, adjacencyList map[string][]string) []string {
+	var candidates []string
+	for _, target := range targets {
+		_, exists := adjacencyList[target]
+		if exists {
+			candidates = append(candidates, target)
+		}
+	}
+	return candidates
 }
 
 func getDepsDirect(adjacencyList map[string][]string, targets []string) []string {
