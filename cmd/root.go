@@ -29,6 +29,13 @@ var dependenciesCmd = &cobra.Command{
 	Run:  dependencies,
 }
 
+var statsCmd = &cobra.Command{
+	Use:   "stats",
+	Short: "Get dependency graph related statistics",
+	Long:  `Get dependency graph related statistics`,
+	Run:   stats,
+}
+
 // JSON file with the dependency graph represented as an adjacency list
 var dg string
 
@@ -46,8 +53,16 @@ func init() {
 	// Here you will define your flags and configuration settings.
 	// Cobra supports persistent flags, which, if defined here,
 	// will be global for your application.
+	RootCmd.AddCommand(statsCmd)
 	RootCmd.AddCommand(dependenciesCmd)
-	dependenciesCmd.Flags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
+
+	//make dg flag global for all commands as all of them will need dg data
+	// TODO: make flag obligatory
+	RootCmd.PersistentFlags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
+
+	// TODO: what is more common to pass as --metrics="deps_count,rdeps_count" 
+	// or as --metric="deps_count" --metric="rdeps_count"
+
 	dependenciesCmd.Flags().BoolP("transitive", "", false, "Get transitive dependencies")
 	dependenciesCmd.Flags().BoolP("reflexive", "", false, "Include input targets in the output")
 
