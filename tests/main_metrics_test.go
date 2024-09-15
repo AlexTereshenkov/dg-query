@@ -6,6 +6,7 @@ package main
 import (
 	"bytes"
 	"encoding/json"
+	"fmt"
 	"strings"
 	"testing"
 
@@ -173,4 +174,51 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 		assert.Equal(t, testCase.expected, actualOutput["deps-transitive"])
 		buf.Reset()
 	}
+}
+
+func TestMetricsCombined(t *testing.T) {
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	input := []byte(`
+	{
+		"foo.py": [
+			"spam.py"
+		],
+		"bar.py": [
+			"eggs.py",
+			"baz.py"
+		],
+		"baz.py": [
+			"baz-dep1.py",
+			"baz-dep2.py",
+			"baz-dep3.py"
+		]
+	}		
+	`)
+
+	// mocking function that reads a file from disk
+	cmd.ReadFile = func(filePath string) []byte {
+		return input
+	}
+
+	metrics := []string{cmd.MetricDependenciesDirect, cmd.MetricDependenciesTransitive}
+	var metricsFlags []string
+	for _, metric := range metrics {
+		metricsFlags = append(metricsFlags, fmt.Sprintf("--metric=%s", metric))
+	}
+	cmd.RootCmd.SetArgs(append([]string{"metrics", "--dg=dg.json"}, metricsFlags...))
+	cmd.RootCmd.Execute()
+	var actualOutput map[string]map[string]int
+
+	// check that report can be loaded into JSON
+	json.Unmarshal([]byte(strings.TrimSpace(buf.String())), &actualOutput)
+
+	// check that all metrics are present in the report
+	for _, metric := range metrics {
+		_, exists := actualOutput[metric]
+		assert.True(t, exists, "Expected metric '%s' to exist in the report", metric)
+	}
+	buf.Reset()
 }
