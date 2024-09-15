@@ -87,3 +87,90 @@ func TestMetricsDependenciesDirect(t *testing.T) {
 		buf.Reset()
 	}
 }
+
+func TestMetricsDependenciesTransitive(t *testing.T) {
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	type TestCase struct {
+		input    []byte
+		expected map[string]int
+	}
+
+	cases := []TestCase{
+		// base case
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"spam.py"
+				],
+				"bar.py": [
+					"eggs.py",
+					"baz.py"
+				],
+				"baz.py": [
+					"baz-dep1.py",
+					"baz-dep2.py",
+					"baz-dep3.py"
+				]
+			}		
+			`),
+			expected: map[string]int{
+				"foo.py": 1,
+				"bar.py": 5,
+				"baz.py": 3,
+			},
+		},
+		// cyclic dependencies
+		{
+			input: []byte(`
+			{
+				"foo.py": [],
+				"bar.py": ["baz.py"],
+				"baz.py": ["foo.py"]
+			}		
+			`),
+			expected: map[string]int{
+				"foo.py": 0,
+				"bar.py": 2,
+				"baz.py": 1,
+			},
+		},
+		// transitive chain
+		{
+			input: []byte(`
+			{
+				"foo.py": [
+					"spam.py"
+				],
+				"spam.py": [
+					"eggs.py"
+				],
+				"eggs.py": [
+					"baz.py"
+				]
+			}			
+			`),
+			expected: map[string]int{
+				"foo.py":  3,
+				"spam.py": 2,
+				"eggs.py": 1,
+			},
+		},
+	}
+
+	for _, testCase := range cases {
+		// mocking function that reads a file from disk
+		cmd.ReadFile = func(filePath string) []byte {
+			return testCase.input
+		}
+		cmd.RootCmd.SetArgs([]string{"metrics", "--metric=deps-transitive", "--dg=dg.json"})
+		cmd.RootCmd.Execute()
+		var actualOutput map[string]map[string]int
+		json.Unmarshal([]byte(strings.TrimSpace(buf.String())), &actualOutput)
+		assert.Equal(t, testCase.expected, actualOutput["deps-transitive"])
+		buf.Reset()
+	}
+}

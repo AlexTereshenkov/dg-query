@@ -8,6 +8,8 @@ import (
 	"os"
 )
 
+type AdjacencyList map[string][]string
+
 var ReadFile = func(filePath string) []byte {
 	jsonData, readingFileError := os.ReadFile(filePath)
 	if readingFileError != nil {
@@ -16,8 +18,8 @@ var ReadFile = func(filePath string) []byte {
 	return jsonData
 }
 
-func loadJsonFile(jsonData []byte) map[string][]string {
-	var adjacencyList map[string][]string
+func loadJsonFile(jsonData []byte) AdjacencyList {
+	var adjacencyList AdjacencyList
 	loadingJsonError := json.Unmarshal(jsonData, &adjacencyList)
 	if loadingJsonError != nil {
 		panic(loadingJsonError)

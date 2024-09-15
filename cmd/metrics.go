@@ -11,6 +11,9 @@ import (
 	"github.com/spf13/cobra"
 )
 
+type MetricDependenciesDirectType map[string]interface{}
+type MetricDependenciesTransitiveType map[string]interface{}
+
 const (
 	MetricDependenciesDirect            = "deps-direct"
 	MetricDependenciesTransitive        = "deps-transitive"
@@ -34,8 +37,24 @@ func isValidMetric(metric string) bool {
 	return false
 }
 
+func getMetricDependenciesDirect(adjacencyList AdjacencyList) MetricDependenciesDirectType {
+	depsCount := make(MetricDependenciesDirectType)
+	for key, deps := range adjacencyList {
+		depsCount[key] = len(deps)
+	}
+	return depsCount
+}
+
+func getMetricDependenciesTransitive(adjacencyList AdjacencyList) MetricDependenciesTransitiveType {
+	depsCount := make(MetricDependenciesTransitiveType)
+	for dep := range adjacencyList {
+		depsCount[dep] = len(getDepsTransitive(adjacencyList, []string{dep}))
+	}
+	return depsCount
+}
+
 /*
-List dependencies for given targets.
+Produce data for given metrics.
 */
 func metrics(cmd *cobra.Command, args []string) {
 	filePath, _ := cmd.Flags().GetString("dg")
@@ -43,7 +62,7 @@ func metrics(cmd *cobra.Command, args []string) {
 	adjacencyList := loadJsonFile(jsonData)
 	metricsItems, _ := cmd.Flags().GetStringSlice("metric")
 
-	report := make(map[string]map[string]int)
+	report := make(map[string]map[string]interface{})
 
 	for _, metric := range metricsItems {
 		if !isValidMetric(metric) {
@@ -51,18 +70,10 @@ func metrics(cmd *cobra.Command, args []string) {
 			return
 		}
 		if metric == MetricDependenciesDirect {
-			depsCount := make(map[string]int)
-			for key, deps := range adjacencyList {
-				depsCount[key] = len(deps)
-			}
-			report[MetricDependenciesDirect] = depsCount
+			report[MetricDependenciesDirect] = getMetricDependenciesDirect(adjacencyList)
 		}
 		if metric == MetricDependenciesTransitive {
-			depsCount := make(map[string]int)
-			for dep := range adjacencyList {
-				depsCount[dep] = len(getDepsTransitive(adjacencyList, []string{dep}))
-			}
-			report[MetricDependenciesTransitive] = depsCount
+			report[MetricDependenciesTransitive] = getMetricDependenciesTransitive(adjacencyList)
 		}
 	}
 	reportJson, _ := json.MarshalIndent(report, "", "  ")
