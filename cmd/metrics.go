@@ -6,7 +6,6 @@ package cmd
 import (
 	"encoding/json"
 	"log"
-	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
