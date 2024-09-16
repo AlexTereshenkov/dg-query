@@ -4,6 +4,8 @@ go_library(
     name = "cmd",
     srcs = [
         "dependencies.go",
+        "dg.go",
+        "metrics.go",
         "root.go",
     ],
     importpath = "github.com/AlexTereshenkov/dg-query/cmd",

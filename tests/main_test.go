@@ -331,7 +331,7 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 			`),
 			expected: []string{},
 			targets:  []string{"bar.py"},
-		},		
+		},
 		// duplicate input targets
 		{
 			input: []byte(`
