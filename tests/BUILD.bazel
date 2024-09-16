@@ -6,6 +6,7 @@ go_test(
     name = "dg-query_test",
     size = "small",
     srcs = [
+        "main_dependents_test.go",
         "main_metrics_test.go",
         "main_test.go",
     ],

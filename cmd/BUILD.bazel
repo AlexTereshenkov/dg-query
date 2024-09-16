@@ -4,6 +4,7 @@ go_library(
     name = "cmd",
     srcs = [
         "dependencies.go",
+        "dependents.go",
         "dg.go",
         "metrics.go",
         "root.go",
