@@ -61,4 +61,42 @@ func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
 	if elapsedTime.Seconds() > 5 {
 		t.Fatalf("Getting dependencies transitively out of a large graph took too long: %s.", elapsedTime)
 	}
+
+}
+
+/*
+Testing performance of counting dependencies for all nodes in a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}.
+Despite memoization of intermediate nodes counting, it will
+perform poorly on a graph with nodes that have thousands of nested
+level dependencies. This is unrealistic in a dependency graph of a
+production codebase where the import depth rarely goes over a few
+dozen levels.
+*/
+func TestMetricsCommandPerfDeepGraph(t *testing.T) {
+
+	startTime := time.Now()
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	// mocking function that reads a file from disk
+	nodesCount := 1000
+	cmd.ReadFile = func(filePath string) []byte {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists
+	}
+	cmd.RootCmd.SetArgs([]string{"metrics", "--metric=deps-transitive", "--dg=dg.json"})
+	cmd.RootCmd.Execute()
+
+	var actualOutput map[string]map[string]int
+	json.Unmarshal([]byte(strings.TrimSpace(buf.String())), &actualOutput)
+
+	assert.Equal(t, 999, actualOutput["deps-transitive"]["1"], "Failing assertion")
+	buf.Reset()
+
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 5 {
+		t.Fatalf("Getting metrics for dependencies count transitively out of a large graph took too long: %s.", elapsedTime)
+	}
 }

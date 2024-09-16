@@ -5,7 +5,8 @@ package cmd
 
 import (
 	"encoding/json"
-	"fmt"
+	"log"
+	"os"
 	"strings"
 
 	"github.com/spf13/cobra"
@@ -47,8 +48,15 @@ func getMetricDependenciesDirect(adjacencyList AdjacencyList) MetricDependencies
 
 func getMetricDependenciesTransitive(adjacencyList AdjacencyList) MetricDependenciesTransitiveType {
 	depsCount := make(MetricDependenciesTransitiveType)
+	visited := make(map[string]int)
 	for dep := range adjacencyList {
-		depsCount[dep] = len(getDepsTransitive(adjacencyList, []string{dep}))
+		if count, found := visited[dep]; found {
+			depsCount[dep] = count
+		} else {
+			transitiveDeps := getDepsTransitive(adjacencyList, []string{dep})
+			depsCount[dep] = len(transitiveDeps)
+			visited[dep] = len(transitiveDeps)
+		}
 	}
 	return depsCount
 }
@@ -66,15 +74,17 @@ func metrics(cmd *cobra.Command, args []string) {
 
 	for _, metric := range metricsItems {
 		if !isValidMetric(metric) {
-			fmt.Printf("invalid metric: %s. Allowed metrics are: %s\n", metric, strings.Join(allowedMetrics, ","))
+			log.Printf("invalid metric: %s. Allowed metrics are: %s\n", metric, strings.Join(allowedMetrics, ","))
 			return
 		}
-		if metric == MetricDependenciesDirect {
-			report[MetricDependenciesDirect] = getMetricDependenciesDirect(adjacencyList)
+		switch metric {
+		case MetricDependenciesDirect:
+			report[metric] = getMetricDependenciesDirect(adjacencyList)
+
+		case MetricDependenciesTransitive:
+			report[metric] = getMetricDependenciesTransitive(adjacencyList)
 		}
-		if metric == MetricDependenciesTransitive {
-			report[MetricDependenciesTransitive] = getMetricDependenciesTransitive(adjacencyList)
-		}
+
 	}
 	reportJson, _ := json.MarshalIndent(report, "", "  ")
 	cmd.OutOrStdout().Write(reportJson)
