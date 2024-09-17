@@ -13,10 +13,7 @@ import (
 )
 
 /*
-Reverse adjacency lists:
-{"foo": ["bar", "baz"], "spam": ["eggs", "bar"]} ->
-{"bar": ["foo", "spam"], "baz":
-}
+Reverse adjacency lists with nodes in the values becoming keys.
 */
 func reverseAdjacencyLists(adjacencyList AdjacencyList) AdjacencyList {
 	reversed := make(AdjacencyList)

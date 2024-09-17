@@ -27,5 +27,10 @@ steps:
       - "echo '--- Test'"
       - bazel test --test_output=all --test_summary=detailed //... 
     
+  - label: ":go: Build"
+    commands:
+    - go test ./cmd
+    - go test ./tests
+
     artifact_paths: 
       - bazel-testlogs/dg-query_test/test.xml
