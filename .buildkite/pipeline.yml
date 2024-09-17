@@ -29,8 +29,24 @@ steps:
     
   - label: ":go: Build"
     commands:
-    - go test ./cmd
-    - go test ./tests
+      - |
+        echo --- 'Prepare environment'
+        sudo apt-get install wget
+        wget https://dl.google.com/go/go1.22.7.linux-amd64.tar.gz
+        tar -C /usr/local -xzf go1.22.7.linux-amd64.tar.gz
+      
+        echo --- 'Check Go installation'
+        ls /usr/local/go
+        export GOROOT=/usr/local/go
+        export PATH=$GOROOT/bin:$PATH
+        echo $PATH
+        go version
+        
+        echo --- 'Build project'
+        go build
+        go test ./cmd
+        go test ./tests
+        go run main.go dependencies --dg='examples/dg-real.json' foo.py spam.py
 
     artifact_paths: 
       - bazel-testlogs/dg-query_test/test.xml
