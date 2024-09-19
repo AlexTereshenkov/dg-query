@@ -33,7 +33,14 @@ var metricsCmd = &cobra.Command{
 	Use:   "metrics",
 	Short: "Get dependency graph related metrics",
 	Long:  `Get dependency graph related metrics`,
-	Run:   metrics,
+	Run: func(cmd *cobra.Command, args []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		metricsItems, _ := cmd.Flags().GetStringSlice("metric")
+		result := metrics(filePath, metricsItems, DefaultReadFile)
+		cmd.OutOrStdout().Write(result)
+		cmd.OutOrStdout().Write([]byte("\n"))
+
+	},
 }
 
 // JSON file with the dependency graph represented as an adjacency list

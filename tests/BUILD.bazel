@@ -5,10 +5,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 go_test(
     name = "dg-query_test",
     size = "small",
-    srcs = [
-        "main_metrics_test.go",
-        "main_test.go",
-    ],
+    srcs = ["main_test.go"],
     tags = ["integration"],
     deps = [
         "//cmd",

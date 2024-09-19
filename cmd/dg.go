@@ -8,9 +8,20 @@ import (
 	"os"
 )
 
+// Function type to be used for reading files
+type ReadFileFunc func(filePath string) []byte
+
 type AdjacencyList map[string][]string
 
 var ReadFile = func(filePath string) []byte {
+	jsonData, readingFileError := os.ReadFile(filePath)
+	if readingFileError != nil {
+		panic(readingFileError)
+	}
+	return jsonData
+}
+
+var DefaultReadFile = func(filePath string) []byte {
 	jsonData, readingFileError := os.ReadFile(filePath)
 	if readingFileError != nil {
 		panic(readingFileError)

@@ -7,8 +7,6 @@ import (
 	"encoding/json"
 	"log"
 	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 type MetricDependenciesDirectType map[string]interface{}
@@ -63,18 +61,15 @@ func getMetricDependenciesTransitive(adjacencyList AdjacencyList) MetricDependen
 /*
 Produce data for given metrics.
 */
-func metrics(cmd *cobra.Command, args []string) {
-	filePath, _ := cmd.Flags().GetString("dg")
-	jsonData := ReadFile(filePath)
+func metrics(filePath string, metricsItems []string, readFile ReadFileFunc) []byte {
+	jsonData := readFile(filePath)
 	adjacencyList := loadJsonFile(jsonData)
-	metricsItems, _ := cmd.Flags().GetStringSlice("metric")
-
 	report := make(map[string]map[string]interface{})
 
 	for _, metric := range metricsItems {
 		if !isValidMetric(metric) {
 			log.Printf("invalid metric: %s. Allowed metrics are: %s\n", metric, strings.Join(allowedMetrics, ","))
-			return
+			return []byte("")
 		}
 		switch metric {
 		case MetricDependenciesDirect:
@@ -86,7 +81,5 @@ func metrics(cmd *cobra.Command, args []string) {
 
 	}
 	reportJson, _ := json.MarshalIndent(report, "", "  ")
-	cmd.OutOrStdout().Write(reportJson)
-	cmd.OutOrStdout().Write([]byte("\n"))
-
+	return reportJson
 }
