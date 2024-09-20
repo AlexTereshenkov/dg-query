@@ -1,29 +1,22 @@
 /*
 Copyright © 2024 Alexey Tereshenkov
 */
-package main
+package cmd
 
 import (
-	"bytes"
 	"encoding/json"
-	"fmt"
-	"strings"
+
 	"testing"
 
-	"github.com/AlexTereshenkov/dg-query/cmd"
 	"github.com/stretchr/testify/assert"
 )
 
+type TestCase struct {
+	input    []byte
+	expected map[string]int
+}
+
 func TestMetricsDependenciesDirect(t *testing.T) {
-	var buf bytes.Buffer
-	cmd.RootCmd.SetOut(&buf)
-	cmd.RootCmd.SetErr(&buf)
-
-	type TestCase struct {
-		input    []byte
-		expected map[string]int
-	}
-
 	cases := []TestCase{
 		// base case
 		{
@@ -76,29 +69,18 @@ func TestMetricsDependenciesDirect(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		// mocking function that reads a file from disk
-		cmd.ReadFile = func(filePath string) []byte {
+		MockReadFile := func(filePath string) []byte {
 			return testCase.input
 		}
-		cmd.RootCmd.SetArgs([]string{"metrics", "--metric=deps-direct", "--dg=dg.json"})
-		cmd.RootCmd.Execute()
+		metricsItems := []string{MetricDependenciesDirect}
+		result := metrics("mock.json", metricsItems, MockReadFile)
 		var actualOutput map[string]map[string]int
-		json.Unmarshal([]byte(strings.TrimSpace(buf.String())), &actualOutput)
+		json.Unmarshal(result, &actualOutput)
 		assert.Equal(t, testCase.expected, actualOutput["deps-direct"])
-		buf.Reset()
 	}
 }
 
 func TestMetricsDependenciesTransitive(t *testing.T) {
-	var buf bytes.Buffer
-	cmd.RootCmd.SetOut(&buf)
-	cmd.RootCmd.SetErr(&buf)
-
-	type TestCase struct {
-		input    []byte
-		expected map[string]int
-	}
-
 	cases := []TestCase{
 		// base case
 		{
@@ -116,7 +98,7 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 					"baz-dep2.py",
 					"baz-dep3.py"
 				]
-			}		
+			}
 			`),
 			expected: map[string]int{
 				"foo.py": 1,
@@ -131,7 +113,7 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 				"foo.py": [],
 				"bar.py": ["baz.py"],
 				"baz.py": ["foo.py"]
-			}		
+			}
 			`),
 			expected: map[string]int{
 				"foo.py": 0,
@@ -152,7 +134,7 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 				"eggs.py": [
 					"baz.py"
 				]
-			}			
+			}
 			`),
 			expected: map[string]int{
 				"foo.py":  3,
@@ -163,24 +145,18 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		// mocking function that reads a file from disk
-		cmd.ReadFile = func(filePath string) []byte {
+		MockReadFile := func(filePath string) []byte {
 			return testCase.input
 		}
-		cmd.RootCmd.SetArgs([]string{"metrics", "--metric=deps-transitive", "--dg=dg.json"})
-		cmd.RootCmd.Execute()
+		metricsItems := []string{MetricDependenciesTransitive}
+		result := metrics("mock.json", metricsItems, MockReadFile)
 		var actualOutput map[string]map[string]int
-		json.Unmarshal([]byte(strings.TrimSpace(buf.String())), &actualOutput)
+		json.Unmarshal(result, &actualOutput)
 		assert.Equal(t, testCase.expected, actualOutput["deps-transitive"])
-		buf.Reset()
 	}
 }
 
 func TestMetricsCombined(t *testing.T) {
-	var buf bytes.Buffer
-	cmd.RootCmd.SetOut(&buf)
-	cmd.RootCmd.SetErr(&buf)
-
 	input := []byte(`
 	{
 		"foo.py": [
@@ -195,30 +171,21 @@ func TestMetricsCombined(t *testing.T) {
 			"baz-dep2.py",
 			"baz-dep3.py"
 		]
-	}		
+	}
 	`)
 
-	// mocking function that reads a file from disk
-	cmd.ReadFile = func(filePath string) []byte {
+	MockReadFile := func(filePath string) []byte {
 		return input
 	}
 
-	metrics := []string{cmd.MetricDependenciesDirect, cmd.MetricDependenciesTransitive}
-	var metricsFlags []string
-	for _, metric := range metrics {
-		metricsFlags = append(metricsFlags, fmt.Sprintf("--metric=%s", metric))
-	}
-	cmd.RootCmd.SetArgs(append([]string{"metrics", "--dg=dg.json"}, metricsFlags...))
-	cmd.RootCmd.Execute()
+	metricsItems := []string{MetricDependenciesDirect, MetricDependenciesTransitive}
+	result := metrics("mock.json", metricsItems, MockReadFile)
 	var actualOutput map[string]map[string]int
-
-	// check that report can be loaded into JSON
-	json.Unmarshal([]byte(strings.TrimSpace(buf.String())), &actualOutput)
+	json.Unmarshal(result, &actualOutput)
 
 	// check that all metrics are present in the report
-	for _, metric := range metrics {
+	for _, metric := range metricsItems {
 		_, exists := actualOutput[metric]
 		assert.True(t, exists, "Expected metric '%s' to exist in the report", metric)
 	}
-	buf.Reset()
 }

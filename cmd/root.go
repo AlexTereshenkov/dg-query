@@ -6,6 +6,7 @@ package cmd
 import (
 	"fmt"
 	"os"
+	"strings"
 
 	"github.com/spf13/cobra"
 )
@@ -26,14 +27,29 @@ var dependenciesCmd = &cobra.Command{
 	Long:  `Get dependencies of a target`,
 	// requiring at least one target address (to get their dependencies)
 	Args: cobra.MinimumNArgs(1),
-	Run:  dependencies,
+	Run: func(cmd *cobra.Command, targets []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		transitive, _ := cmd.Flags().GetBool("transitive")
+		reflexive, _ := cmd.Flags().GetBool("reflexive")
+		result := dependencies(filePath, targets, transitive, reflexive, DefaultReadFile)
+		output := strings.Join(result, "\n")
+		cmd.OutOrStdout().Write([]byte(output))
+		cmd.OutOrStdout().Write([]byte("\n"))
+	},
 }
 
 var metricsCmd = &cobra.Command{
 	Use:   "metrics",
 	Short: "Get dependency graph related metrics",
 	Long:  `Get dependency graph related metrics`,
-	Run:   metrics,
+	Run: func(cmd *cobra.Command, args []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		metricsItems, _ := cmd.Flags().GetStringSlice("metric")
+		result := metrics(filePath, metricsItems, DefaultReadFile)
+		cmd.OutOrStdout().Write(result)
+		cmd.OutOrStdout().Write([]byte("\n"))
+
+	},
 }
 
 // JSON file with the dependency graph represented as an adjacency list
