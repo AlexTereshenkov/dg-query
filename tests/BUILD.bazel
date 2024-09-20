@@ -4,22 +4,7 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
     name = "dg-query_test",
-    size = "small",
-    srcs = ["main_test.go"],
-    tags = ["integration"],
-    deps = [
-        "//cmd",
-        "@com_github_stretchr_testify//assert",
-    ],
-)
-# gazelle:exclude main_perf_test.go
-
-go_test(
-    name = "dg-query_perf_test",
-    size = "small",
     srcs = ["main_perf_test.go"],
-    embed = ["//:dg-query_lib"],
-    tags = ["performance"],
     deps = [
         "//cmd",
         "@com_github_stretchr_testify//assert",

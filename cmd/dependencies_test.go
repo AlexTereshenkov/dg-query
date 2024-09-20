@@ -1,32 +1,22 @@
 /*
 Copyright © 2024 Alexey Tereshenkov
 */
-package main
+package cmd
 
 import (
-	"bytes"
-	"strings"
 	"testing"
 
-	"github.com/AlexTereshenkov/dg-query/cmd"
 	"github.com/stretchr/testify/assert"
 )
 
+type testCaseDependencies struct {
+	input    []byte
+	expected []string
+	targets  []string
+}
+
 func TestDependenciesDirect(t *testing.T) {
-
-	var buf bytes.Buffer
-	// redirection is not required for any subcommands, but this is how it's done for the reference:
-	// for _, c := range cmd.RootCmd.Commands() {
-	// 	c.SetOut(&buf)
-	// }
-	cmd.RootCmd.SetOut(&buf)
-	cmd.RootCmd.SetErr(&buf)
-
-	cases := []struct {
-		input    []byte
-		expected []string
-		targets  []string
-	}{
+	cases := []testCaseDependencies{
 		// empty graph
 		{
 			input:    []byte(`{}`),
@@ -139,29 +129,18 @@ func TestDependenciesDirect(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		// mocking function that reads a file from disk
-		cmd.ReadFile = func(filePath string) []byte {
+		MockReadFile := func(filePath string) []byte {
 			return testCase.input
 		}
-		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--dg=dg.json"}, testCase.targets...))
-		cmd.RootCmd.Execute()
-		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
-		assert.Equal(t, testCase.expected, actualOutput)
-		buf.Reset()
+		transitive := false
+		reflexive := false
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, MockReadFile)
+		assert.Equal(t, testCase.expected, result)
 	}
 }
 
 func TestDependenciesTransitive(t *testing.T) {
-
-	var buf bytes.Buffer
-	cmd.RootCmd.SetOut(&buf)
-	cmd.RootCmd.SetErr(&buf)
-
-	cases := []struct {
-		input    []byte
-		expected []string
-		targets  []string
-	}{
+	cases := []testCaseDependencies{
 		// plain transitive dependencies, one level only
 		{
 			input: []byte(`
@@ -172,7 +151,7 @@ func TestDependenciesTransitive(t *testing.T) {
 				],
 				"bar.py": [],
 				"baz.py": []
-			}		
+			}
 			`),
 			expected: []string{"bar.py", "baz.py"},
 			targets:  []string{"foo.py"},
@@ -192,7 +171,7 @@ func TestDependenciesTransitive(t *testing.T) {
 				"eggs.py": [
 					"cheese.py"
 				]
-			}		
+			}
 			`),
 			expected: []string{"bar.py", "baz.py", "cheese.py", "eggs.py", "ham.py"},
 			targets:  []string{"foo.py"},
@@ -211,8 +190,8 @@ func TestDependenciesTransitive(t *testing.T) {
 			],
 			"spam.py": [
 				"baz.py"
-			]		
-		}		
+			]
+		}
 		`),
 			expected: []string{"bar.py", "baz.py", "spam.py"},
 			targets:  []string{"foo.py"},
@@ -232,7 +211,7 @@ func TestDependenciesTransitive(t *testing.T) {
 				"eggs.py": [
 					"cheese.py"
 				]
-			}		
+			}
 			`),
 			expected: []string{"bar.py", "baz.py", "foo.py", "ham.py"},
 			targets:  []string{"foo.py"},
@@ -247,9 +226,9 @@ func TestDependenciesTransitive(t *testing.T) {
 				"bar.py": [
 					"foo.py"
 				]
-			}		
+			}
 			`),
-			expected: []string{"bar.py"},
+			expected: []string{"bar.py", "foo.py"},
 			targets:  []string{"foo.py"},
 		},
 		// transitive circular dependency
@@ -266,7 +245,7 @@ func TestDependenciesTransitive(t *testing.T) {
 					"foo.py"
 				]
 
-			}		
+			}
 			`),
 			expected: []string{"bar.py", "baz.py", "foo.py"},
 			targets:  []string{"foo.py"},
@@ -274,29 +253,19 @@ func TestDependenciesTransitive(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		// mocking function that reads a file from disk
-		cmd.ReadFile = func(filePath string) []byte {
+		MockReadFile := func(filePath string) []byte {
 			return testCase.input
 		}
-		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--transitive", "--dg=dg.json"}, testCase.targets...))
-		cmd.RootCmd.Execute()
-		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
-		assert.Equal(t, testCase.expected, actualOutput)
-		buf.Reset()
+		transitive := true
+		reflexive := false
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, MockReadFile)
+		assert.Equal(t, testCase.expected, result)
 	}
 }
 
 func TestDependenciesReflexiveClosure(t *testing.T) {
 
-	var buf bytes.Buffer
-	cmd.RootCmd.SetOut(&buf)
-	cmd.RootCmd.SetErr(&buf)
-
-	cases := []struct {
-		input    []byte
-		expected []string
-		targets  []string
-	}{
+	cases := []testCaseDependencies{
 		// base case
 		{
 			input: []byte(`
@@ -307,7 +276,7 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 				"bar.py": [
 					"eggs.py"
 				]
-			}		
+			}
 			`),
 			expected: []string{"bar.py", "eggs.py", "foo.py", "spam.py"},
 			targets:  []string{"foo.py", "bar.py"},
@@ -317,7 +286,7 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 			input: []byte(`
 			{
 				"foo.py": []
-			}		
+			}
 			`),
 			expected: []string{"foo.py"},
 			targets:  []string{"foo.py", "bar.py"},
@@ -327,7 +296,7 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 			input: []byte(`
 			{
 				"foo.py": []
-			}		
+			}
 			`),
 			expected: []string{},
 			targets:  []string{"bar.py"},
@@ -337,7 +306,7 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 			input: []byte(`
 			{
 				"foo.py": ["bar.py"]
-			}		
+			}
 			`),
 			expected: []string{"bar.py", "foo.py"},
 			targets:  []string{"foo.py", "foo.py"},
@@ -345,14 +314,12 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		// mocking function that reads a file from disk
-		cmd.ReadFile = func(filePath string) []byte {
+		MockReadFile := func(filePath string) []byte {
 			return testCase.input
 		}
-		cmd.RootCmd.SetArgs(append([]string{"dependencies", "--reflexive", "--dg=dg.json"}, testCase.targets...))
-		cmd.RootCmd.Execute()
-		actualOutput := strings.Split(buf.String(), "\n")[:len(testCase.expected)]
-		assert.Equal(t, testCase.expected, actualOutput)
-		buf.Reset()
+		transitive := false
+		reflexive := true
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, MockReadFile)
+		assert.Equal(t, testCase.expected, result)
 	}
 }

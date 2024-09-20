@@ -4,39 +4,30 @@ Copyright © 2024 Alexey Tereshenkov
 package cmd
 
 import (
-	"fmt"
 	"slices"
-
-	"strings"
-
-	"github.com/spf13/cobra"
 )
 
 /*
 List dependencies for given targets.
 */
-func dependencies(cmd *cobra.Command, targets []string) {
-	filePath, _ := cmd.Flags().GetString("dg")
-	jsonData := ReadFile(filePath)
+func dependencies(filePath string, targets []string, transitive bool, reflexive bool, readFile ReadFileFunc) []string {
+	jsonData := readFile(filePath)
 	adjacencyList := loadJsonFile(jsonData)
 	var deps []string
 
-	transitive, _ := cmd.Flags().GetBool("transitive")
 	if transitive {
 		deps = getDepsTransitive(adjacencyList, targets)
 	} else {
 		deps = getDepsDirect(adjacencyList, targets)
 	}
 
-	reflexive, _ := cmd.Flags().GetBool("reflexive")
 	if reflexive {
 		reflexiveTargets := getReflexiveTargets(targets, adjacencyList)
 		deps = append(deps, reflexiveTargets...)
 	}
 	slices.Sort(deps)
 	deps = slices.Compact(deps)
-	output := strings.Join(deps, "\n")
-	fmt.Fprintln(cmd.OutOrStdout(), output)
+	return deps
 
 }
 
@@ -52,7 +43,7 @@ func getReflexiveTargets(targets []string, adjacencyList map[string][]string) []
 }
 
 func getDepsDirect(adjacencyList map[string][]string, targets []string) []string {
-	var deps []string
+	deps := []string{}
 	for _, target := range targets {
 		deps = append(deps, adjacencyList[target]...)
 	}
@@ -60,7 +51,7 @@ func getDepsDirect(adjacencyList map[string][]string, targets []string) []string
 }
 
 func getDepsTransitive(adjacencyList map[string][]string, targets []string) []string {
-	var deps []string
+	deps := []string{}
 	// Keeping track of visited targets to skip duplicates and handle infinite loops
 	visited := make(map[string]bool)
 

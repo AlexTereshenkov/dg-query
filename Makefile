@@ -2,7 +2,7 @@ build-go:
 	gofmt -w .
 	go build
 	go install
-	go test ./tests
+	go test ./...
 	dg-query
 
 run-go:

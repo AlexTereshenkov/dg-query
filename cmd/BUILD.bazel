@@ -17,7 +17,10 @@ go_library(
 
 go_test(
     name = "cmd_test",
-    srcs = ["metrics_test.go"],
+    srcs = [
+        "dependencies_test.go",
+        "metrics_test.go",
+    ],
     embed = [":cmd"],
     deps = ["@com_github_stretchr_testify//assert"],
 )
