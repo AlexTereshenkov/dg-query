@@ -31,7 +31,9 @@ var dependenciesCmd = &cobra.Command{
 		filePath, _ := cmd.Flags().GetString("dg")
 		transitive, _ := cmd.Flags().GetBool("transitive")
 		reflexive, _ := cmd.Flags().GetBool("reflexive")
-		result := dependencies(filePath, targets, transitive, reflexive, DefaultReadFile)
+		depth, _ := cmd.Flags().GetInt("depth")
+
+		result := dependencies(filePath, targets, transitive, reflexive, depth, DefaultReadFile)
 		output := strings.Join(result, "\n")
 		cmd.OutOrStdout().Write([]byte(output))
 		cmd.OutOrStdout().Write([]byte("\n"))
@@ -82,6 +84,7 @@ func init() {
 
 	dependenciesCmd.Flags().BoolP("transitive", "", false, "Get transitive dependencies")
 	dependenciesCmd.Flags().BoolP("reflexive", "", false, "Include input targets in the output")
+	dependenciesCmd.Flags().Int("depth", 0, "Depth of search for transitive dependencies")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.

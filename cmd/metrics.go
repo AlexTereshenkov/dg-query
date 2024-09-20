@@ -50,7 +50,7 @@ func getMetricDependenciesTransitive(adjacencyList AdjacencyList) MetricDependen
 		if count, found := visited[dep]; found {
 			depsCount[dep] = count
 		} else {
-			transitiveDeps := getDepsTransitive(adjacencyList, []string{dep})
+			transitiveDeps := getDepsTransitive(adjacencyList, []string{dep}, 0)
 			depsCount[dep] = len(transitiveDeps)
 			visited[dep] = len(transitiveDeps)
 		}

@@ -39,8 +39,36 @@ func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
 		return lists
 	}
-	result := cmd.Dependencies("mock.json", []string{"1"}, true, false, MockReadFile)
+	result := cmd.Dependencies("mock.json", []string{"1"}, true, false, 0, MockReadFile)
 	expected := make([]string, nodesCount-1)
+	for i := range expected {
+		expected[i] = strconv.Itoa(i + 2)
+	}
+
+	assert.ElementsMatch(t, expected, result, "Failing assertion")
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 5 {
+		t.Fatalf("Getting dependencies transitively out of a large graph took too long: %s.", elapsedTime)
+	}
+}
+
+/*
+Testing performance of getting dependencies for a node in a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
+*/
+func TestDependenciesCommandPerfDeepGraphDepthLimit(t *testing.T) {
+
+	startTime := time.Now()
+	nodesCount := 1000
+	MockReadFile := func(filePath string) []byte {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists
+	}
+	transitive := true
+	reflexive := false
+	depth := 512
+	result := cmd.Dependencies("mock.json", []string{"1"}, transitive, reflexive, depth, MockReadFile)
+	expected := make([]string, 512)
 	for i := range expected {
 		expected[i] = strconv.Itoa(i + 2)
 	}
