@@ -13,6 +13,8 @@ type testCaseDependencies struct {
 	input    []byte
 	expected []string
 	targets  []string
+	// by default zero
+	depth int
 }
 
 func TestDependenciesDirect(t *testing.T) {
@@ -134,7 +136,7 @@ func TestDependenciesDirect(t *testing.T) {
 		}
 		transitive := false
 		reflexive := false
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, MockReadFile)
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
 		assert.Equal(t, testCase.expected, result)
 	}
 }
@@ -258,7 +260,7 @@ func TestDependenciesTransitive(t *testing.T) {
 		}
 		transitive := true
 		reflexive := false
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, MockReadFile)
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
 		assert.Equal(t, testCase.expected, result)
 	}
 }
@@ -319,7 +321,97 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 		}
 		transitive := false
 		reflexive := true
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, MockReadFile)
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		assert.Equal(t, testCase.expected, result)
+	}
+}
+
+func TestDependenciesDepth(t *testing.T) {
+	baseDg := []byte(`
+		{
+			"foo.py": [
+				"foo-dep1.py",
+				"foo-dep2.py"
+			],
+			"spam.py": [
+				"spam-dep1.py",
+				"spam-dep2.py"
+			],
+			"foo-dep1.py": [
+				"foo-dep1-dep1.py",
+				"foo-dep1-dep2.py"
+			],
+			"foo-dep1-dep2.py": [
+				"foo-dep1-dep2-dep3.py"
+			],
+			"foo-dep2.py": [
+				"foo-dep2-dep1.py",
+				"foo-dep2-dep2.py"
+			],
+			"spam-dep1.py": [
+				"spam-dep1-dep1.py",
+				"spam-dep1-dep2.py"
+			],
+			"spam-dep2.py": [
+				"spam-dep2-dep1.py",
+				"spam-dep2-dep2.py"
+			]
+		}
+	`)
+
+	cases := []testCaseDependencies{
+		// direct dependencies only
+		{
+			input:    baseDg,
+			expected: []string{"foo-dep1.py", "foo-dep2.py"},
+			targets:  []string{"foo.py"},
+			depth:    1,
+		},
+		// direct dependencies and their direct dependencies, single target (depth=2)
+		{
+			input: baseDg,
+			expected: []string{
+				"foo-dep1-dep1.py", "foo-dep1-dep2.py", "foo-dep1.py",
+				"foo-dep2-dep1.py", "foo-dep2-dep2.py", "foo-dep2.py"},
+			targets: []string{"foo.py"},
+			depth:   2,
+		},
+		// direct dependencies and their direct dependencies, single target (depth=3)
+		{
+			input: baseDg,
+			expected: []string{
+				"foo-dep1-dep1.py", "foo-dep1-dep2-dep3.py", "foo-dep1-dep2.py", "foo-dep1.py",
+				"foo-dep2-dep1.py", "foo-dep2-dep2.py", "foo-dep2.py"},
+			targets: []string{"foo.py"},
+			depth:   3,
+		},
+		// direct dependencies only, multiple targets
+		{
+			input:    baseDg,
+			expected: []string{"foo-dep1.py", "foo-dep2.py", "spam-dep1.py", "spam-dep2.py"},
+			targets:  []string{"foo.py", "spam.py"},
+			depth:    1,
+		},
+		// direct dependencies and their direct dependencies, multiple targets
+		{
+			input: baseDg,
+			expected: []string{
+				"foo-dep1-dep1.py", "foo-dep1-dep2.py", "foo-dep1.py",
+				"foo-dep2-dep1.py", "foo-dep2-dep2.py", "foo-dep2.py",
+				"spam-dep1-dep1.py", "spam-dep1-dep2.py", "spam-dep1.py",
+				"spam-dep2-dep1.py", "spam-dep2-dep2.py", "spam-dep2.py"},
+			targets: []string{"foo.py", "spam.py"},
+			depth:   2,
+		},
+	}
+
+	for _, testCase := range cases {
+		MockReadFile := func(filePath string) []byte {
+			return testCase.input
+		}
+		transitive := true
+		reflexive := false
+		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
 		assert.Equal(t, testCase.expected, result)
 	}
 }

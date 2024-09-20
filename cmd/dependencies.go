@@ -13,13 +13,14 @@ var Dependencies = dependencies
 /*
 List dependencies for given targets.
 */
-func dependencies(filePath string, targets []string, transitive bool, reflexive bool, readFile ReadFileFunc) []string {
+func dependencies(filePath string, targets []string, transitive bool, reflexive bool,
+	depth int, readFile ReadFileFunc) []string {
 	jsonData := readFile(filePath)
 	adjacencyList := loadJsonFile(jsonData)
 	var deps []string
 
 	if transitive {
-		deps = getDepsTransitive(adjacencyList, targets)
+		deps = getDepsTransitive(adjacencyList, targets, depth)
 	} else {
 		deps = getDepsDirect(adjacencyList, targets)
 	}
@@ -53,14 +54,13 @@ func getDepsDirect(adjacencyList map[string][]string, targets []string) []string
 	return deps
 }
 
-func getDepsTransitive(adjacencyList map[string][]string, targets []string) []string {
+func getDepsTransitive(adjacencyList map[string][]string, targets []string, depth int) []string {
 	deps := []string{}
-	// Keeping track of visited targets to skip duplicates and handle infinite loops
 	visited := make(map[string]bool)
 
 	// Necessary to declare beforehand since it's called recursively
-	var getDeps func(target string)
-	getDeps = func(target string) {
+	var getDeps func(target string, currentDepth int)
+	getDeps = func(target string, currentDepth int) {
 		// Visited targets can be skipped to avoid infinite recursion
 		if visited[target] {
 			return
@@ -72,14 +72,17 @@ func getDepsTransitive(adjacencyList map[string][]string, targets []string) []st
 
 			// If the dependency is also a key in the adjacency list, recurse into it
 			if _, isKey := adjacencyList[dep]; isKey {
-				getDeps(dep)
+				if depth != 0 && currentDepth >= depth {
+					continue
+				}
+				getDeps(dep, currentDepth+1)
 			}
 		}
 	}
 
 	// Get transitive dependencies for each target
 	for _, target := range targets {
-		getDeps(target)
+		getDeps(target, 1)
 	}
 	return deps
 }
