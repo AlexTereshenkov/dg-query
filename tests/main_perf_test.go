@@ -5,6 +5,7 @@ package main
 
 import (
 	"encoding/json"
+	"slices"
 	"strconv"
 	"testing"
 	"time"
@@ -77,6 +78,38 @@ func TestDependenciesCommandPerfDeepGraphDepthLimit(t *testing.T) {
 	elapsedTime := time.Since(startTime)
 	if elapsedTime.Seconds() > 5 {
 		t.Fatalf("Getting dependencies transitively out of a large graph took too long: %s.", elapsedTime)
+	}
+
+}
+
+/*
+Testing performance of getting dependents for a node in a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
+*/
+func TestDependentsCommandPerfDeepGraph(t *testing.T) {
+	startTime := time.Now()
+
+	// mocking function that reads a file from disk
+	nodesCount := 10000
+	MockReadFile := func(filePath string) []byte {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists
+	}
+	transitive := true
+	reflexive := false
+	depth := 0
+	result := cmd.Dependents("mock-dg.json", "", []string{"10000"}, transitive, reflexive, depth, MockReadFile)
+
+	expected := make([]string, nodesCount-1)
+	for i := range expected {
+		expected[i] = strconv.Itoa(i + 1)
+	}
+	slices.Sort(expected)
+	assert.ElementsMatch(t, expected, result, "Failing assertion")
+
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 2 {
+		t.Fatalf("Getting dependents transitively out of a large graph took too long: %s.", elapsedTime)
 	}
 
 }

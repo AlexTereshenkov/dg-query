@@ -25,6 +25,21 @@ func TestCliDependencies(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliDependents(t *testing.T) {
+
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs(append([]string{"dependents", "--transitive", "--dg=examples/dg.json"}, "foo-dep1-dep1.py"))
+	cmd.RootCmd.Execute()
+
+	expected := []string{"foo-dep1.py", "foo.py"}
+	actualOutput := strings.Split(buf.String(), "\n")[:len(expected)]
+	assert.Equal(t, expected, actualOutput)
+	buf.Reset()
+}
+
 func TestCliMetrics(t *testing.T) {
 
 	var buf bytes.Buffer
