@@ -1,0 +1,18 @@
+{
+    "foo.py": [
+        "foo-dep1.py",
+        "foo-dep2.py"
+    ],
+    "spam.py": [
+        "spam-dep1.py",
+        "spam-dep2.py"
+    ],
+    "foo-dep1.py": [
+        "foo-dep1-dep1.py",
+        "foo-dep1-dep2.py"
+    ],
+    "spam-dep2.py": [
+        "spam-dep2-dep1.py",
+        "spam-dep2-dep2.py"
+    ]
+}

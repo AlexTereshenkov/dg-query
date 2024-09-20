@@ -4,7 +4,11 @@ load("@io_bazel_rules_go//go:def.bzl", "go_test")
 
 go_test(
     name = "dg-query_test",
-    srcs = ["main_perf_test.go"],
+    srcs = [
+        "main_cli_test.go",
+        "main_perf_test.go",
+    ],
+    data = ["examples/dg.json"],
     deps = [
         "//cmd",
         "@com_github_stretchr_testify//assert",
