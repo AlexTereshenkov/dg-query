@@ -1,5 +1,6 @@
 build-go:
 	gofmt -w .
+	goimports -w .
 	go build
 	go install
 	go test ./...

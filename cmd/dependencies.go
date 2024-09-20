@@ -7,6 +7,9 @@ import (
 	"slices"
 )
 
+// to be used in non-unit tests
+var Dependencies = dependencies
+
 /*
 List dependencies for given targets.
 */

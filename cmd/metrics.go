@@ -58,6 +58,9 @@ func getMetricDependenciesTransitive(adjacencyList AdjacencyList) MetricDependen
 	return depsCount
 }
 
+// to be used in non-unit tests
+var Metrics = metrics
+
 /*
 Produce data for given metrics.
 */
