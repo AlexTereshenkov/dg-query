@@ -131,7 +131,7 @@ func TestMetricsCommandPerfDeepGraph(t *testing.T) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
 		return lists
 	}
-	result := cmd.Metrics("mock.json", []string{cmd.MetricDependenciesTransitive}, MockReadFile)
+	result := cmd.Metrics("mock.json", "", []string{cmd.MetricDependenciesTransitive}, MockReadFile)
 	var actualOutput map[string]map[string]int
 	json.Unmarshal(result, &actualOutput)
 
