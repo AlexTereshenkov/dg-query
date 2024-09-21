@@ -84,5 +84,7 @@ func getDepsTransitive(adjacencyList map[string][]string, targets []string, dept
 	for _, target := range targets {
 		getDeps(target, 1)
 	}
+	slices.Sort(deps)
+	deps = slices.Compact(deps)
 	return deps
 }
