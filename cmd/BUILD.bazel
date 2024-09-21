@@ -4,6 +4,7 @@ go_library(
     name = "cmd",
     srcs = [
         "dependencies.go",
+        "dependents.go",
         "dg.go",
         "metrics.go",
         "root.go",
@@ -19,6 +20,7 @@ go_test(
     name = "cmd_test",
     srcs = [
         "dependencies_test.go",
+        "dependents_test.go",
         "metrics_test.go",
     ],
     embed = [":cmd"],
