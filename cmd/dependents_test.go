@@ -122,13 +122,16 @@ func TestDependentsDirect(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		transitive := false
 		reflexive := false
 		// use dependency graph to be reversed
-		result := dependents("mock-dg.json", "", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		result, err := dependents("mock-dg.json", "", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		assert.Equal(t, testCase.expected, result)
 	}
 }
@@ -156,12 +159,15 @@ func TestDependentsTransitiveReflexiveClosure(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		transitive := true
 		reflexive := true
-		result := dependents("mock-dg.json", "", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		result, err := dependents("mock-dg.json", "", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		assert.Equal(t, testCase.expected, result)
 	}
 }

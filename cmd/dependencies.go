@@ -14,9 +14,12 @@ var Dependencies = dependencies
 List dependencies for given targets.
 */
 func dependencies(filePath string, targets []string, transitive bool, reflexive bool,
-	depth int, readFile ReadFileFunc) []string {
-	jsonData := readFile(filePath)
-	adjacencyList := loadJsonFile(jsonData)
+	depth int, readFile ReadFileFunc) ([]string, error) {
+	jsonData, err := readFile(filePath)
+	if err != nil {
+		return nil, err
+	}
+	adjacencyList, err := loadJsonFile(jsonData)
 	var deps []string
 
 	if transitive {
@@ -31,7 +34,7 @@ func dependencies(filePath string, targets []string, transitive bool, reflexive 
 	}
 	slices.Sort(deps)
 	deps = slices.Compact(deps)
-	return deps
+	return deps, nil
 
 }
 
@@ -84,5 +87,7 @@ func getDepsTransitive(adjacencyList map[string][]string, targets []string, dept
 	for _, target := range targets {
 		getDeps(target, 1)
 	}
+	slices.Sort(deps)
+	deps = slices.Compact(deps)
 	return deps
 }

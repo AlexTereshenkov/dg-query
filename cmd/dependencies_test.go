@@ -131,12 +131,15 @@ func TestDependenciesDirect(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		transitive := false
 		reflexive := false
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		result, err := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		assert.Equal(t, testCase.expected, result)
 	}
 }
@@ -255,12 +258,15 @@ func TestDependenciesTransitive(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		transitive := true
 		reflexive := false
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		result, err := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		assert.Equal(t, testCase.expected, result)
 	}
 }
@@ -316,12 +322,15 @@ func TestDependenciesReflexiveClosure(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		transitive := false
 		reflexive := true
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		result, err := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		assert.Equal(t, testCase.expected, result)
 	}
 }
@@ -406,12 +415,15 @@ func TestDependenciesDepth(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		transitive := true
 		reflexive := false
-		result := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		result, err := dependencies("mock.json", testCase.targets, transitive, reflexive, testCase.depth, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		assert.Equal(t, testCase.expected, result)
 	}
 }

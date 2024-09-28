@@ -32,15 +32,28 @@ List dependents for given targets. If the reverse dependency graph is provided,
 it's used, otherwise a dependency graph is reversed first.
 */
 func dependents(filePathDg string, filePathDgReverse string, targets []string, transitive bool, reflexive bool,
-	depth int, DefaultReadFile ReadFileFunc) []string {
+	depth int, DefaultReadFile ReadFileFunc) ([]string, error) {
 	var adjacencyList AdjacencyList
 
 	if filePathDgReverse != "" {
-		jsonData := DefaultReadFile(filePathDgReverse)
-		adjacencyList = loadJsonFile(jsonData)
+		jsonData, err := DefaultReadFile(filePathDgReverse)
+		if err != nil {
+			return nil, err
+		}
+		adjacencyList, err = loadJsonFile(jsonData)
+		if err != nil {
+			return nil, err
+		}
 	} else {
-		jsonData := DefaultReadFile(filePathDg)
-		adjacencyList = reverseAdjacencyLists(loadJsonFile(jsonData))
+		jsonData, err := DefaultReadFile(filePathDg)
+		if err != nil {
+			return nil, err
+		}
+		adjacencyList, err = loadJsonFile(jsonData)
+		if err != nil {
+			return nil, err
+		}
+		adjacencyList = reverseAdjacencyLists(adjacencyList)
 	}
 
 	var rdeps []string
@@ -56,5 +69,5 @@ func dependents(filePathDg string, filePathDgReverse string, targets []string, t
 	}
 	slices.Sort(rdeps)
 	rdeps = slices.Compact(rdeps)
-	return rdeps
+	return rdeps, nil
 }

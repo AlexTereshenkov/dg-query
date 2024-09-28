@@ -36,11 +36,14 @@ func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
 
 	startTime := time.Now()
 	nodesCount := 10000
-	MockReadFile := func(filePath string) []byte {
+	MockReadFile := func(filePath string) ([]byte, error) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
-		return lists
+		return lists, nil
 	}
-	result := cmd.Dependencies("mock.json", []string{"1"}, true, false, 0, MockReadFile)
+	result, err := cmd.Dependencies("mock.json", []string{"1"}, true, false, 0, MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
 	expected := make([]string, nodesCount-1)
 	for i := range expected {
 		expected[i] = strconv.Itoa(i + 2)
@@ -61,14 +64,17 @@ func TestDependenciesCommandPerfDeepGraphDepthLimit(t *testing.T) {
 
 	startTime := time.Now()
 	nodesCount := 1000
-	MockReadFile := func(filePath string) []byte {
+	MockReadFile := func(filePath string) ([]byte, error) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
-		return lists
+		return lists, nil
 	}
 	transitive := true
 	reflexive := false
 	depth := 512
-	result := cmd.Dependencies("mock.json", []string{"1"}, transitive, reflexive, depth, MockReadFile)
+	result, err := cmd.Dependencies("mock.json", []string{"1"}, transitive, reflexive, depth, MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
 	expected := make([]string, 512)
 	for i := range expected {
 		expected[i] = strconv.Itoa(i + 2)
@@ -91,14 +97,17 @@ func TestDependentsCommandPerfDeepGraph(t *testing.T) {
 
 	// mocking function that reads a file from disk
 	nodesCount := 10000
-	MockReadFile := func(filePath string) []byte {
+	MockReadFile := func(filePath string) ([]byte, error) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
-		return lists
+		return lists, nil
 	}
 	transitive := true
 	reflexive := false
 	depth := 0
-	result := cmd.Dependents("mock-dg.json", "", []string{"10000"}, transitive, reflexive, depth, MockReadFile)
+	result, err := cmd.Dependents("mock-dg.json", "", []string{"10000"}, transitive, reflexive, depth, MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
 
 	expected := make([]string, nodesCount-1)
 	for i := range expected {
@@ -127,11 +136,14 @@ func TestMetricsCommandPerfDeepGraph(t *testing.T) {
 
 	startTime := time.Now()
 	nodesCount := 1000
-	MockReadFile := func(filePath string) []byte {
+	MockReadFile := func(filePath string) ([]byte, error) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
-		return lists
+		return lists, nil
 	}
-	result := cmd.Metrics("mock.json", []string{cmd.MetricDependenciesTransitive}, MockReadFile)
+	result, err := cmd.Metrics("mock.json", "", []string{cmd.MetricDependenciesTransitive}, MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
 	var actualOutput map[string]map[string]int
 	json.Unmarshal(result, &actualOutput)
 

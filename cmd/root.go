@@ -34,7 +34,11 @@ var dependenciesCmd = &cobra.Command{
 		reflexive, _ := cmd.Flags().GetBool("reflexive")
 		depth, _ := cmd.Flags().GetInt("depth")
 
-		result := dependencies(filePath, targets, transitive, reflexive, depth, DefaultReadFile)
+		result, err := dependencies(filePath, targets, transitive, reflexive, depth, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 		output := strings.Join(result, "\n")
 		cmd.OutOrStdout().Write([]byte(output))
 		cmd.OutOrStdout().Write([]byte("\n"))
@@ -56,8 +60,12 @@ var dependentsCmd = &cobra.Command{
 		reflexive, _ := cmd.Flags().GetBool("reflexive")
 		depth, _ := cmd.Flags().GetInt("depth")
 
-		result := dependents(filePathDg, filePathDgReverse,
+		result, err := dependents(filePathDg, filePathDgReverse,
 			targets, transitive, reflexive, depth, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 		output := strings.Join(result, "\n")
 		cmd.OutOrStdout().Write([]byte(output))
 		cmd.OutOrStdout().Write([]byte("\n"))
@@ -69,9 +77,14 @@ var metricsCmd = &cobra.Command{
 	Short: "Get dependency graph related metrics",
 	Long:  `Get dependency graph related metrics`,
 	Run: func(cmd *cobra.Command, args []string) {
-		filePath, _ := cmd.Flags().GetString("dg")
+		filePathDg, _ := cmd.Flags().GetString("dg")
+		filePathDgReverse, _ := cmd.Flags().GetString("rdg")
 		metricsItems, _ := cmd.Flags().GetStringSlice("metric")
-		result := metrics(filePath, metricsItems, DefaultReadFile)
+		result, err := metrics(filePathDg, filePathDgReverse, metricsItems, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
 		cmd.OutOrStdout().Write(result)
 		cmd.OutOrStdout().Write([]byte("\n"))
 
@@ -106,6 +119,7 @@ func init() {
 	//make dg flag global for all commands as all of them will need dg data
 	RootCmd.PersistentFlags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
 
+	metricsCmd.Flags().StringVar(&rdg, "rdg", "", "JSON file with the dependency graph represented as an adjacency list")
 	metricsCmd.Flags().StringSliceVar(&metricsFlags, "metric", []string{}, "Metrics to report")
 
 	dependenciesCmd.Flags().BoolP("transitive", "", false, "Get transitive dependencies")
