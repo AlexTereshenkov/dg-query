@@ -4,3 +4,4 @@ dg-query
 .vscode
 
 dist/
+coverage-html/
