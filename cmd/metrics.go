@@ -127,9 +127,6 @@ func metrics(filePathDg string, filePathDgReverse string, metricsItems []string,
 				return nil, err
 			}
 			adjacencyListReverse = reverseAdjacencyLists(adjacencyListTemp)
-			if err != nil {
-				return nil, err
-			}
 			// extending the map with the nodes that had no dependencies (e.g. {"foo": []} as "foo" won't be in reverse adjacency list
 			// if no one depends on "foo")
 			for key, deps := range adjacencyListTemp {
