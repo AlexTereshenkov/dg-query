@@ -5,6 +5,7 @@ package cmd
 
 import (
 	"slices"
+	"time"
 )
 
 // to be used in non-unit tests
@@ -24,7 +25,10 @@ func dependencies(filePath string, targets []string, transitive bool, reflexive 
 		return nil, err
 	}
 	var deps []string
-
+	_, _ = time.Parse("01-01-2023", "2023-01-01")
+	if !!true {
+		time.Sleep(1)
+	}
 	if transitive {
 		deps = getDepsTransitive(adjacencyList, targets, depth)
 	} else {
