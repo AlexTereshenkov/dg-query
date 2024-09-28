@@ -90,25 +90,46 @@ var Metrics = metrics
 /*
 Produce data for given metrics.
 */
-func metrics(filePathDg string, filePathDgReverse string, metricsItems []string, readFile ReadFileFunc) []byte {
+func metrics(filePathDg string, filePathDgReverse string, metricsItems []string, readFile ReadFileFunc) ([]byte, error) {
 	var adjacencyList AdjacencyList
 	var adjacencyListReverse AdjacencyList
 
 	report := make(map[string]map[string]interface{})
 	// use dependencies adjacency list as is
 	if slices.Contains(metricsItems, MetricDependenciesDirect) || slices.Contains(metricsItems, MetricDependenciesTransitive) {
-		jsonData := readFile(filePathDg)
-		adjacencyList = loadJsonFile(jsonData)
+		jsonData, err := readFile(filePathDg)
+		if err != nil {
+			return nil, err
+		}
+		adjacencyList, err = loadJsonFile(jsonData)
+		if err != nil {
+			return nil, err
+		}
 	}
 	// use the reversed dependencies list if provided otherwise reverse the dependencies list first
 	if slices.Contains(metricsItems, MetricReverseDependenciesDirect) || slices.Contains(metricsItems, MetricReverseDependenciesTransitive) {
 		if filePathDgReverse != "" {
-			jsonData := readFile(filePathDgReverse)
-			adjacencyListReverse = loadJsonFile(jsonData)
+			jsonData, err := readFile(filePathDgReverse)
+			if err != nil {
+				return nil, err
+			}
+			adjacencyListReverse, err = loadJsonFile(jsonData)
+			if err != nil {
+				return nil, err
+			}
 		} else {
-			jsonData := readFile(filePathDg)
-			adjacencyListTemp := loadJsonFile(jsonData)
+			jsonData, err := readFile(filePathDg)
+			if err != nil {
+				return nil, err
+			}
+			adjacencyListTemp, err := loadJsonFile(jsonData)
+			if err != nil {
+				return nil, err
+			}
 			adjacencyListReverse = reverseAdjacencyLists(adjacencyListTemp)
+			if err != nil {
+				return nil, err
+			}
 			// extending the map with the nodes that had no dependencies (e.g. {"foo": []} as "foo" won't be in reverse adjacency list
 			// if no one depends on "foo")
 			for key, deps := range adjacencyListTemp {
@@ -122,7 +143,7 @@ func metrics(filePathDg string, filePathDgReverse string, metricsItems []string,
 	for _, metric := range metricsItems {
 		if !isValidMetric(metric) {
 			log.Printf("invalid metric: %s. Allowed metrics are: %s\n", metric, strings.Join(allowedMetrics, ","))
-			return []byte("")
+			return []byte(""), nil
 		}
 		switch metric {
 
@@ -140,5 +161,5 @@ func metrics(filePathDg string, filePathDgReverse string, metricsItems []string,
 		}
 	}
 	reportJson, _ := json.MarshalIndent(report, "", "  ")
-	return reportJson
+	return reportJson, nil
 }

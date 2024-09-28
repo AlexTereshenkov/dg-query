@@ -77,11 +77,14 @@ func TestMetricsDependenciesDirect(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		metricsItems := []string{MetricDependenciesDirect}
-		result := metrics("mock.json", "", metricsItems, MockReadFile)
+		result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		var actualOutput map[string]map[string]int
 		json.Unmarshal(result, &actualOutput)
 		assert.Equal(t, testCase.expected, actualOutput["deps-direct"])
@@ -201,11 +204,14 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		metricsItems := []string{MetricDependenciesTransitive}
-		result := metrics("mock.json", "", metricsItems, MockReadFile)
+		result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		var actualOutput map[string]map[string]int
 		json.Unmarshal(result, &actualOutput)
 		assert.Equal(t, testCase.expected, actualOutput["deps-transitive"])
@@ -268,11 +274,14 @@ func TestMetricsReverseDependenciesDirect(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		metricsItems := []string{MetricReverseDependenciesDirect}
-		result := metrics("mock.json", "", metricsItems, MockReadFile)
+		result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		var actualOutput map[string]map[string]int
 		json.Unmarshal(result, &actualOutput)
 		assert.Equal(t, testCase.expected, actualOutput["rdeps-direct"])
@@ -360,11 +369,14 @@ func TestMetricsReverseDependenciesTransitive(t *testing.T) {
 	}
 
 	for _, testCase := range cases {
-		MockReadFile := func(filePath string) []byte {
-			return testCase.input
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
 		}
 		metricsItems := []string{MetricReverseDependenciesTransitive}
-		result := metrics("mock.json", "", metricsItems, MockReadFile)
+		result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
 		var actualOutput map[string]map[string]int
 		json.Unmarshal(result, &actualOutput)
 		assert.Equal(t, testCase.expected, actualOutput["rdeps-transitive"])
@@ -389,12 +401,15 @@ func TestMetricsCombined(t *testing.T) {
 	}
 	`)
 
-	MockReadFile := func(filePath string) []byte {
-		return input
+	MockReadFile := func(filePath string) ([]byte, error) {
+		return input, nil
 	}
 
 	metricsItems := []string{MetricDependenciesDirect, MetricDependenciesTransitive, MetricReverseDependenciesDirect, MetricReverseDependenciesTransitive}
-	result := metrics("mock.json", "", metricsItems, MockReadFile)
+	result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
 	var actualOutput map[string]map[string]int
 	json.Unmarshal(result, &actualOutput)
 

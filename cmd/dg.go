@@ -9,23 +9,23 @@ import (
 )
 
 // Function type to be used for reading files
-type ReadFileFunc func(filePath string) []byte
+type ReadFileFunc func(filePath string) ([]byte, error)
 
 type AdjacencyList map[string][]string
 
-var DefaultReadFile = func(filePath string) []byte {
+var DefaultReadFile = func(filePath string) ([]byte, error) {
 	jsonData, readingFileError := os.ReadFile(filePath)
 	if readingFileError != nil {
-		panic(readingFileError)
+		return nil, readingFileError
 	}
-	return jsonData
+	return jsonData, nil
 }
 
-func loadJsonFile(jsonData []byte) AdjacencyList {
+func loadJsonFile(jsonData []byte) (AdjacencyList, error) {
 	var adjacencyList AdjacencyList
 	loadingJsonError := json.Unmarshal(jsonData, &adjacencyList)
 	if loadingJsonError != nil {
-		panic(loadingJsonError)
+		return nil, loadingJsonError
 	}
-	return adjacencyList
+	return adjacencyList, nil
 }
