@@ -29,3 +29,8 @@ steps:
     
     artifact_paths: 
       - bazel-testlogs/dg-query_test/test.xml
+
+
+  - label: ":go: Build"
+    commands:
+        - .buildkite/build-go.sh

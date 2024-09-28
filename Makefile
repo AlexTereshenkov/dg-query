@@ -1,6 +1,7 @@
 build-go:
 	gofmt -w .
 	goimports -w .
+	staticcheck ./...
 	go build
 	go install
 	go test ./...

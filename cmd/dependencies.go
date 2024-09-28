@@ -20,6 +20,9 @@ func dependencies(filePath string, targets []string, transitive bool, reflexive 
 		return nil, err
 	}
 	adjacencyList, err := loadJsonFile(jsonData)
+	if err != nil {
+		return nil, err
+	}
 	var deps []string
 
 	if transitive {
