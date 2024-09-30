@@ -24,7 +24,6 @@ func dependencies(filePath string, targets []string, transitive bool, reflexive 
 		return nil, err
 	}
 	var deps []string
-
 	if transitive {
 		deps = getDepsTransitive(adjacencyList, targets, depth)
 	} else {
