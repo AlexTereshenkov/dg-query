@@ -34,15 +34,15 @@ load("@io_bazel_rules_go//go:deps.bzl", "go_register_toolchains", "go_rules_depe
 
 go_rules_dependencies()
 
-# This should be called before the first usage of nogo;
-# @co_honnef_go_tool is defined by `staticcheck()` macro
-load("@com_github_sluongng_nogo_analyzer//staticcheck:deps.bzl", "staticcheck")
-staticcheck()
-
 go_register_toolchains(
     nogo = "@//:nogo", 
     version = "1.22.5",
 )
+
+# This should be called before the `gazelle_dependencies()` as it seems that
+# some of the dependencies (in the shared Bazel dependences space) are overriden
+load("@com_github_sluongng_nogo_analyzer//staticcheck:deps.bzl", "staticcheck")
+staticcheck()
 
 gazelle_dependencies()
 
