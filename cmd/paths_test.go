@@ -156,6 +156,25 @@ func TestPaths(t *testing.T) {
 			toTarget:   "A",
 		},
 		/*
+			A -> B -> C -> D -|- E
+			^				  |
+			|                 |
+			-------------------
+		*/
+		{
+			input: []byte(`{
+				"A": ["B"], 
+				"B": ["C"], 
+				"C": ["D"], 
+				"D": ["A", "E"]
+			}`),
+			expected: [][]string{
+				{"A", "B", "C", "D", "E"},
+			},
+			fromTarget: "A",
+			toTarget:   "E",
+		},
+		/*
 			A -> B -|
 			^		|
 			|       |
