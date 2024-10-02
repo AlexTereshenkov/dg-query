@@ -15,20 +15,29 @@ func paths(filePath string, fromTarget string, toTarget string, readFile ReadFil
 
 	// Initialize the result slice to store all paths
 	var result [][]string
-
-	dfs(adjacencyList, fromTarget, toTarget, fromTarget, []string{}, &result, make(map[string]bool))
+	//memo := make(map[string][][]string)
+	dfsWithMemoization(adjacencyList, fromTarget, toTarget, fromTarget, []string{}, &result, make(map[string]bool))
 
 	return result, nil
 }
 
 // dfs does a depth-first search (DFS) to find all paths from the "from" target to the "to" target
-func dfs(adjList map[string][]string, currentNode, endNode, startNode string, currentPath []string, result *[][]string, visited map[string]bool) {
+func dfsWithMemoization(
+	adjList map[string][]string,
+	currentNode,
+	endNode,
+	startNode string,
+	currentPath []string,
+	result *[][]string,
+	visited map[string]bool,
+) {
 	// Add the current node to the path
 	currentPath = append(currentPath, currentNode)
 
 	// If we reach the end node, add the current path to the result
 	if currentNode == endNode {
-		*result = append(*result, append([]string{}, currentPath...)) // append a copy of the currentPath
+		*result = append(*result, append([]string{}, currentPath...)) // Append a copy of the currentPath
+		// Backtrack by removing the current node from the path
 		return
 	}
 
@@ -37,15 +46,17 @@ func dfs(adjList map[string][]string, currentNode, endNode, startNode string, cu
 
 	// Continue exploring neighbors
 	for _, neighbor := range adjList[currentNode] {
-		// Skip the neighbor if it is already visited, or if it's the start node (to prevent revisiting it)
+		// Skip the neighbor if it is already visited or if it's the start node
 		if visited[neighbor] || (neighbor == startNode && currentNode != startNode) {
 			continue
 		}
 
 		// Recursively visit neighbors
-		dfs(adjList, neighbor, endNode, startNode, currentPath, result, visited)
+		dfsWithMemoization(adjList, neighbor, endNode, startNode, currentPath, result, visited)
 	}
 
 	// Backtrack: unmark the current node as visited for other paths
 	visited[currentNode] = false
+	// Not needed?! Remove the current node from the path for backtracking
+	// currentPath = currentPath[:len(currentPath)-1] // Backtrack to remove the current node from the path
 }
