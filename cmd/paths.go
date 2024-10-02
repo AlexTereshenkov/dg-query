@@ -3,7 +3,10 @@ Copyright © 2024 Alexey Tereshenkov
 */
 package cmd
 
-func paths(filePath string, fromTarget string, toTarget string, readFile ReadFileFunc) ([][]string, error) {
+// to be used in non-unit tests
+var Paths = paths
+
+func paths(filePath string, fromTarget string, toTarget string, maxPaths int, readFile ReadFileFunc) ([][]string, error) {
 	jsonData, err := readFile(filePath)
 	if err != nil {
 		return nil, err
@@ -16,12 +19,12 @@ func paths(filePath string, fromTarget string, toTarget string, readFile ReadFil
 	// Initialize the result slice to store all paths
 	var result [][]string
 	//memo := make(map[string][][]string)
-	dfsWithMemoization(adjacencyList, fromTarget, toTarget, fromTarget, []string{}, &result, make(map[string]bool))
+	dfsWithMemoization(adjacencyList, fromTarget, toTarget, fromTarget, []string{}, &result, make(map[string]bool), maxPaths)
 
 	return result, nil
 }
 
-// dfs does a depth-first search (DFS) to find all paths from the "from" target to the "to" target
+// dfs does a depth-first search (DFS) to find all (or some) paths from the "from" target to the "to" target
 func dfsWithMemoization(
 	adjList map[string][]string,
 	currentNode,
@@ -30,7 +33,12 @@ func dfsWithMemoization(
 	currentPath []string,
 	result *[][]string,
 	visited map[string]bool,
+	maxPaths int,
 ) {
+	if maxPaths > 0 && len(*result) >= maxPaths {
+		return
+	}
+
 	// Add the current node to the path
 	currentPath = append(currentPath, currentNode)
 
@@ -52,7 +60,7 @@ func dfsWithMemoization(
 		}
 
 		// Recursively visit neighbors
-		dfsWithMemoization(adjList, neighbor, endNode, startNode, currentPath, result, visited)
+		dfsWithMemoization(adjList, neighbor, endNode, startNode, currentPath, result, visited, maxPaths)
 	}
 
 	// Backtrack: unmark the current node as visited for other paths

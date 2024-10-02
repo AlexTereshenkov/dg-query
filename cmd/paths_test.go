@@ -197,7 +197,7 @@ func TestPaths(t *testing.T) {
 		MockReadFile := func(filePath string) ([]byte, error) {
 			return testCase.input, nil
 		}
-		result, err := paths("mock-dg.json", testCase.fromTarget, testCase.toTarget, MockReadFile)
+		result, err := paths("mock-dg.json", testCase.fromTarget, testCase.toTarget, 0, MockReadFile)
 		if err != nil {
 			t.Fail()
 		}

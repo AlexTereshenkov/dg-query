@@ -40,6 +40,25 @@ func TestCliDependents(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliPaths(t *testing.T) {
+
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs([]string{"paths", "--dg=examples/dg.json", "--from=foo.py", "--to=foo-dep1-dep1.py"})
+	cmd.RootCmd.Execute()
+
+	expected := []byte(`[["foo.py", "foo-dep1.py", "foo-dep1-dep1.py"]]`)
+
+	var actualOutput [][]string
+	var expectedOutput [][]string
+	json.Unmarshal(buf.Bytes(), &actualOutput)
+	json.Unmarshal(expected, &expectedOutput)
+	assert.Equal(t, expectedOutput, actualOutput)
+	buf.Reset()
+}
+
 func TestCliMetrics(t *testing.T) {
 
 	var buf bytes.Buffer

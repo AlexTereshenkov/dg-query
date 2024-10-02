@@ -100,7 +100,8 @@ var pathsCmd = &cobra.Command{
 		filePath, _ := cmd.Flags().GetString("dg")
 		fromTarget, _ := cmd.Flags().GetString("from")
 		toTarget, _ := cmd.Flags().GetString("to")
-		result, err := paths(filePath, fromTarget, toTarget, DefaultReadFile)
+		maxPaths, _ := cmd.Flags().GetInt("n")
+		result, err := paths(filePath, fromTarget, toTarget, maxPaths, DefaultReadFile)
 		if err != nil {
 			fmt.Println(err)
 			os.Exit(1)
@@ -148,6 +149,7 @@ func init() {
 	pathsCmd.Flags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
 	pathsCmd.Flags().StringVar(&fromTarget, "from", "", "Find path from this target")
 	pathsCmd.Flags().StringVar(&toTarget, "to", "", "Find path to this target")
+	pathsCmd.Flags().Int("n", 0, "Only return first n paths between targets")
 
 	metricsCmd.Flags().StringVar(&rdg, "rdg", "", "JSON file with the dependency graph represented as an adjacency list")
 	metricsCmd.Flags().StringSliceVar(&metricsFlags, "metric", []string{}, "Metrics to report")
