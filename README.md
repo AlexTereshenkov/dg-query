@@ -46,6 +46,32 @@ The tool serves as a faster way to query the dependency graph of a project. This
 
 `dg-query` has a ton of functionality grouped under individual commands:
 
-### `dependencies`
+### `dependencies` (`deps`)
+Identify dependencies of given node(s), optionally transitively (`--transitive`).
 
-* identify dependencies of given node(s), optionally transitively
+Options:
+* specify depth when searching for dependencies transitively (`--depth`)
+* include the build target itself in the output (`--reflexive`)
+
+### `dependents` (`rdeps`)
+Identify dependents of given node(s), optionally transitively (`--transitive`).
+
+Options:
+* specify depth when searching for dependents transitively (`--depth`)
+* include the build target itself in the output (`--reflexive`)
+
+### paths
+Get paths between individual targets.
+
+Options:
+* `--from` and `--to` targets to find paths between
+* `--n` limits the number of paths returned (helpful with a large graph)
+
+### metrics
+
+Get dependency graph related metrics. A dependency graph (`--dg`) may be used,
+or a reverse dependency graph (`--rdg`) may be used, if you have one.
+
+Metrics:
+* dependency count (optionally, transitively)
+* dependent count (optionally, transitively)
