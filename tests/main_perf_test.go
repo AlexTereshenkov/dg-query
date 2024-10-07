@@ -154,3 +154,31 @@ func TestMetricsCommandPerfDeepGraph(t *testing.T) {
 		t.Fatalf("Getting metrics for dependencies count transitively out of a large graph took too long: %s.", elapsedTime)
 	}
 }
+
+/*
+Testing performance of getting paths for a node in a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
+*/
+func TestPathsCommandPerfDeepGraph(t *testing.T) {
+
+	startTime := time.Now()
+	nodesCount := 10000
+	MockReadFile := func(filePath string) ([]byte, error) {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists, nil
+	}
+	result, err := cmd.Paths("mock.json", "1", strconv.Itoa(nodesCount), 0, MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
+	expected := make([]string, nodesCount)
+	for i := 0; i < nodesCount; i++ {
+		expected[i] = strconv.Itoa(i + 1)
+	}
+
+	assert.ElementsMatch(t, expected, result[0], "Failing assertion")
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 1 {
+		t.Fatalf("Getting paths in a large graph took too long: %s.", elapsedTime)
+	}
+}
