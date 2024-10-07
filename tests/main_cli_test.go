@@ -46,7 +46,7 @@ func TestCliPaths(t *testing.T) {
 	cmd.RootCmd.SetOut(&buf)
 	cmd.RootCmd.SetErr(&buf)
 
-	cmd.RootCmd.SetArgs([]string{"paths", "--dg=examples/dg.json", "--from=foo.py", "--to=foo-dep1-dep1.py"})
+	cmd.RootCmd.SetArgs([]string{"paths", "--dg=examples/dg.json", "--from=foo.py", "--to=foo-dep1-dep1.py", "--n=1"})
 	cmd.RootCmd.Execute()
 
 	expected := []byte(`[["foo.py", "foo-dep1.py", "foo-dep1-dep1.py"]]`)

@@ -19,15 +19,61 @@ type testCasePaths struct {
 func TestPaths(t *testing.T) {
 
 	cases := []testCasePaths{
-		/*
+		/* searching for a path between an existing and a non-existing node
 
-				    	A
-			           / \
-			          B   B1
-			          |    |
-			          C   C1
-			           \  /
-			            D
+			    	A
+		           / \
+		          B   B1
+		          |    |
+		          C   C1
+		           \  /
+		            D
+
+		*/
+		{
+			input: []byte(`{
+				"A": ["B", "B1"], 
+				"B": ["C"], 
+				"B1": ["C1"], 
+				"C": ["D"],
+				"C1": ["D"]
+			}`),
+			expected:   [][]string{},
+			fromTarget: "B",
+			toTarget:   "X",
+		},
+		/* there's no path from B to C1
+
+			    	A
+		           / \
+		          B   B1
+		          |    |
+		          C   C1
+		           \  /
+		            D
+
+		*/
+		{
+			input: []byte(`{
+				"A": ["B", "B1"], 
+				"B": ["C"], 
+				"B1": ["C1"], 
+				"C": ["D"],
+				"C1": ["D"]
+			}`),
+			expected:   [][]string{},
+			fromTarget: "B",
+			toTarget:   "C1",
+		},
+		/* the basic case, from D to A
+
+			    	A
+		           / \
+		          B   B1
+		          |    |
+		          C   C1
+		           \  /
+		            D
 
 		*/
 		{
@@ -44,6 +90,29 @@ func TestPaths(t *testing.T) {
 			},
 			fromTarget: "A",
 			toTarget:   "D",
+		},
+		/* going the opposite way, from D to A
+
+			    	A
+		           / \
+		          B   B1
+		          |    |
+		          C   C1
+		           \  /
+		            D
+
+		*/
+		{
+			input: []byte(`{
+				"A": ["B", "B1"], 
+				"B": ["C"], 
+				"B1": ["C1"], 
+				"C": ["D"],
+				"C1": ["D"]
+			}`),
+			expected:   [][]string{},
+			fromTarget: "D",
+			toTarget:   "A",
 		},
 		/*
 		       A
@@ -117,7 +186,9 @@ func TestPaths(t *testing.T) {
 			fromTarget: "B",
 			toTarget:   "F",
 		},
-		/*
+		/* get to a node just before it cycles back to the start node,
+		from A to to D
+
 			A -> B -> C -> D -|
 			^				  |
 			|                 |
@@ -136,7 +207,9 @@ func TestPaths(t *testing.T) {
 			fromTarget: "A",
 			toTarget:   "D",
 		},
-		/*
+		/* following the cycle until reaching the node before the start,
+		from B to A
+
 			A -> B -> C -> D -|
 			^				  |
 			|                 |
@@ -155,7 +228,9 @@ func TestPaths(t *testing.T) {
 			fromTarget: "B",
 			toTarget:   "A",
 		},
-		/*
+		/* starting from a node in a cycle, going to a node that reaches outside the cycle,
+		from A to E
+
 			A -> B -> C -> D -|- E
 			^				  |
 			|                 |
@@ -174,11 +249,11 @@ func TestPaths(t *testing.T) {
 			fromTarget: "A",
 			toTarget:   "E",
 		},
-		/*
-			A -> B -|
-			^		|
-			|       |
-			--------
+		/* the simplest cycle
+		A -> B -|
+		^		|
+		|       |
+		--------
 		*/
 		{
 			input: []byte(`{
