@@ -47,3 +47,10 @@ go_binary(
     embed = [":dg-query_lib"],
     visibility = ["//visibility:public"],
 )
+
+sh_binary(
+    name = "run_coverage_with_genhtml",
+    srcs = ["scripts/codecov.sh"],
+    data = ["@lcov//:bin/genhtml"],
+    visibility = ["//visibility:public"],
+)

@@ -50,3 +50,9 @@ load("//:deps.bzl", "go_dependencies")
 
 # gazelle:repository_macro deps.bzl%go_dependencies
 go_dependencies()
+
+http_archive(
+    name = "lcov",
+    urls = ["https://github.com/linux-test-project/lcov/releases/download/v2.1/lcov-2.1.tar.gz"],
+    strip_prefix = "lcov-2.1",
+)
