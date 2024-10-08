@@ -55,4 +55,15 @@ http_archive(
     name = "lcov",
     urls = ["https://github.com/linux-test-project/lcov/releases/download/v2.1/lcov-2.1.tar.gz"],
     strip_prefix = "lcov-2.1",
+    sha256 = "4d01d9f551a3f0e868ce84742fb60aac4407e3fc1622635a07e29d70e38f1faf",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "lcov",
+    srcs = glob([
+        "bin/*",
+    ]),
+)
+    """
 )
