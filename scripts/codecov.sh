@@ -1,7 +1,7 @@
 #!/bin/bash
 
 # Define the path to the genhtml binary inside the extracted lcov package
-GENHTML_BINARY=$(bazel info output_base)/external/lcov/bin/genhtml
+GENHTML_BINARY=$1 #(bazel info output_base)/external/lcov/bin/genhtml
 
 # Run Bazel coverage
 bazel coverage //... --combined_report=lcov

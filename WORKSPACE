@@ -63,6 +63,7 @@ filegroup(
     name = "lcov",
     srcs = glob([
         "bin/*",
+        "lib/*",
     ]),
 )
     """

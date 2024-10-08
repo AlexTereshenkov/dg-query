@@ -50,7 +50,7 @@ go_binary(
 
 sh_binary(
     name = "run_coverage_with_genhtml",
-    args = "$(location @lcov//:bin/genhtml)",
+    args = ["$(location @lcov//:bin/genhtml)"],
     srcs = ["scripts/codecov.sh"],
     data = ["@lcov//:bin/genhtml"],
     visibility = ["//visibility:public"],
