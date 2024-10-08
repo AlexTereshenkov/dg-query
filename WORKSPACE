@@ -60,9 +60,15 @@ http_archive(
 package(default_visibility = ["//visibility:public"])
 
 filegroup(
-    name = "lcov",
+    name = "lcov-files-bin",
     srcs = glob([
         "bin/*",
+    ]),
+)
+
+filegroup(
+    name = "lcov-files-lib",
+    srcs = glob([
         "lib/*",
     ]),
 )

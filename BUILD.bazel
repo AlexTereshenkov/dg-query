@@ -52,6 +52,6 @@ sh_binary(
     name = "run_coverage_with_genhtml",
     args = ["$(location @lcov//:bin/genhtml)"],
     srcs = ["scripts/codecov.sh"],
-    data = ["@lcov//:bin/genhtml"],
+    data = ["@lcov//:bin/genhtml", "@lcov//:lcov-files-lib"],
     visibility = ["//visibility:public"],
 )
