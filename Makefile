@@ -20,3 +20,4 @@ build-bazel:
 
 codecov:
 	bazel coverage //... --combined_report=lcov
+	genhtml -o coverage-html bazel-out/_coverage/_coverage_report.dat

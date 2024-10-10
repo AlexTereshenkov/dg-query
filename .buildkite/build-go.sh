@@ -31,7 +31,9 @@ staticcheck ./...
 
 echo --- 'Build project'
 go build
-go test ./...
+mkdir dist
+go test -test.v -coverprofile dist/coverage.out  ./...
+go tool cover -html dist/coverage.out -o dist/coverage.html
 
 echo --- 'Sanity check'
 go run main.go deps --dg='examples/dg-real.json' foo.py spam.py
