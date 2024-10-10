@@ -50,13 +50,13 @@ go_binary(
 
 sh_binary(
     name = "run_coverage_with_genhtml",
-    args = ["$(location @lcov//:genhtml)"],
     srcs = ["scripts/codecov.sh"],
+    args = ["$(location @lcov//:genhtml)"],
     data = [
-        "@lcov//:genhtml", 
-        "@lcov//:bin",      
+        "@lcov//:genhtml",
+        "@lcov//:bin",
         # find a way to refer to files with a `glob` or `filegroup`; none of these worked --
-        # the files are not included into the runfiles directory for some reason, so listing 
+        # the files are not included into the runfiles directory for some reason, so listing
         # them individually is required
         "//cmd:dependencies.go",
         "//cmd:dependencies_test.go",
@@ -68,6 +68,6 @@ sh_binary(
         "//cmd:paths.go",
         "//cmd:paths_test.go",
         "//cmd:root.go",
-    ], 
+    ],
     visibility = ["//visibility:public"],
 )

@@ -34,4 +34,3 @@ go_test(
     embed = [":cmd"],
     deps = ["@com_github_stretchr_testify//assert"],
 )
-
