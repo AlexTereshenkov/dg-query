@@ -1,5 +1,11 @@
 load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
 
+# this is to be able to include Go sources into the sh_binary target generating HTML report
+exports_files(
+    glob(["*.go"]),
+    visibility = ["//visibility:public"],
+)
+
 go_library(
     name = "cmd",
     srcs = [
@@ -28,3 +34,4 @@ go_test(
     embed = [":cmd"],
     deps = ["@com_github_stretchr_testify//assert"],
 )
+

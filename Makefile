@@ -20,5 +20,3 @@ build-bazel:
 
 codecov:
 	bazel coverage //... --combined_report=lcov
-	
-	google-chrome coverage-html/index.html

@@ -54,7 +54,20 @@ sh_binary(
     srcs = ["scripts/codecov.sh"],
     data = [
         "@lcov//:genhtml", 
-        "@lcov//:bin"
-    ],
+        "@lcov//:bin",      
+        # find a way to refer to files with a `glob` or `filegroup`; none of these worked --
+        # the files are not included into the runfiles directory for some reason, so listing 
+        # them individually is required
+        "//cmd:dependencies.go",
+        "//cmd:dependencies_test.go",
+        "//cmd:dependents.go",
+        "//cmd:dependents_test.go",
+        "//cmd:dg.go",
+        "//cmd:metrics.go",
+        "//cmd:metrics_test.go",
+        "//cmd:paths.go",
+        "//cmd:paths_test.go",
+        "//cmd:root.go",
+    ], 
     visibility = ["//visibility:public"],
 )
