@@ -1,3 +1,6 @@
+env:
+  BUILDKITE_ANALYTICS_TOKEN: $(buildkite-agent secret get ANALYTICS_TOKEN)
+
 steps:
   - label: ":bazel: Build"
     commands:
@@ -26,10 +29,16 @@ steps:
       
       - "echo '--- Test'"
       - bazel test --test_output=all --test_summary=detailed //... 
+      - cp bazel-testlogs/tests/dg-query_test/test.xml test.xml
 
       - "echo '--- Code coverage'"
       - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml 
     
+    plugins:
+      - test-collector#v1.10.2:
+          files: "test.xml"
+          format: "junit"
+  
     artifact_paths: 
       - bazel-testlogs/tests/dg-query_test/test.xml
 
