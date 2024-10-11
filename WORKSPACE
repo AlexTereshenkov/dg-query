@@ -50,3 +50,27 @@ load("//:deps.bzl", "go_dependencies")
 
 # gazelle:repository_macro deps.bzl%go_dependencies
 go_dependencies()
+
+http_archive(
+    name = "lcov",
+    urls = ["https://github.com/linux-test-project/lcov/releases/download/v2.1/lcov-2.1.tar.gz"],
+    strip_prefix = "lcov-2.1",
+    sha256 = "4d01d9f551a3f0e868ce84742fb60aac4407e3fc1622635a07e29d70e38f1faf",
+    build_file_content = """
+package(default_visibility = ["//visibility:public"])
+
+filegroup(
+    name = "genhtml",
+    srcs = glob([
+        "bin/genhtml",
+    ]),
+)
+
+filegroup(
+    name = "bin",
+    srcs = glob([
+        "bin/*",
+    ]),
+)
+    """
+)

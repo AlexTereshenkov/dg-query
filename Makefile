@@ -17,3 +17,7 @@ build-bazel:
 	bazel run //:dg-query
 	bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
 	bazel test //...
+
+codecov:
+	bazel coverage //... --combined_report=lcov
+	genhtml -o coverage-html bazel-out/_coverage/_coverage_report.dat
