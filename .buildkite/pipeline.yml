@@ -1,3 +1,8 @@
+cache:
+  paths:
+    - "build_cache"
+  size: "20g"
+
 steps:
   - label: ":bazel: Build"
     commands:
@@ -10,7 +15,7 @@ steps:
       
       - "echo '--- Build'"
       - bazel --version
-      - bazel build //...
+      - bazel build --repository_cache="./build_cache" --disk_cache="./build_cache" //...
       - ls bazel-*
       
       - "echo '--- Static checks'"
