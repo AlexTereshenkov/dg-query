@@ -16,6 +16,8 @@ steps:
       - "echo '--- Static checks'"
       - "echo 'Gazelle'"
       - bazel run //:gazelle -- -mode=diff
+      - "echo 'Buildifier'"
+      - bazel run //:buildifier-check
       - "echo 'gofmt'"
       # getting exit code 1 despite not needing to format anything, 
       # so running the gofmt in "check" mode and not inspecting the exit code.

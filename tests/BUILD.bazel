@@ -1,4 +1,4 @@
-load("//tests:defs.bzl", "custom_go_test")
+load("//:defs/defs.bzl", "custom_go_test")
 
 # gazelle:ignore
 custom_go_test(
