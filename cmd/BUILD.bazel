@@ -32,5 +32,6 @@ go_test(
         "paths_test.go",
     ],
     embed = [":cmd"],
+    tags = ["unit"],
     deps = ["@com_github_stretchr_testify//assert"],
 )
