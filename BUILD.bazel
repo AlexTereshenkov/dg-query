@@ -71,3 +71,39 @@ sh_binary(
     ],
     visibility = ["//visibility:public"],
 )
+
+filegroup(
+    name = "buildifier_bin",
+    srcs = ["@buildifier//file:buildifier"],
+)
+
+# to enable formatting of *.bzl files that are not picked up by Gazelle
+sh_binary(
+    name = "buildifier",
+    srcs = ["@buildifier//file:buildifier"],
+    args = [
+        "--lint=fix",
+        "-r",
+        ".",
+    ],
+    # one cannot use `glob` inside a Bazel package (as there's `tests/BUILD.bazel` file)
+    # so the file is stored in `defs/` instead
+    data = glob(["defs/defs.*"]),
+    visibility = ["//visibility:public"],
+)
+
+# TODO: put in a macro instead (why can't built-in targets be found in .bzl file?)
+sh_binary(
+    name = "buildifier-check",
+    srcs = ["@buildifier//file:buildifier"],
+    args = [
+        "--lint=warn",
+        "--mode=check",
+        "-r",
+        ".",
+    ],
+    # one cannot use `glob` inside a Bazel package (as there's `tests/BUILD.bazel` file)
+    # so the file is stored in `defs/` instead
+    data = glob(["defs/defs.*"]),
+    visibility = ["//visibility:public"],
+)

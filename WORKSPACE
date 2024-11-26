@@ -1,4 +1,5 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
+load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
 http_archive(
     name = "com_github_sluongng_nogo_analyzer",
@@ -73,4 +74,13 @@ filegroup(
     ]),
 )
     """
+)
+
+# Buildifier setup
+http_file(
+    name = "buildifier",
+    urls = ["https://github.com/bazelbuild/buildtools/releases/download/v7.3.1/buildifier-linux-amd64"],
+    sha256 = "5474cc5128a74e806783d54081f581662c4be8ae65022f557e9281ed5dc88009",
+    downloaded_file_path = "buildifier",
+    executable = True,
 )

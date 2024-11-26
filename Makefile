@@ -13,6 +13,7 @@ run-go:
 
 build-bazel:
 	bazel run //:gazelle
+	bazel run //:buildifier
 	bazel run //:update-deps
 	bazel run //:dg-query
 	bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
