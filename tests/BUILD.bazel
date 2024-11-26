@@ -1,16 +1,14 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_test")
+load("//tests:defs.bzl", "custom_go_test")
 
-# gazelle:prefix github.com/AlexTereshenkov/dg-query
+# gazelle:ignore
+custom_go_test(
+    name = "dg-query_integration_test",
+    srcs = ["main_cli_test.go"],
+    tag = "integration",
+)
 
-go_test(
-    name = "dg-query_test",
-    srcs = [
-        "main_cli_test.go",
-        "main_perf_test.go",
-    ],
-    data = ["examples/dg.json"],
-    deps = [
-        "//cmd",
-        "@com_github_stretchr_testify//assert",
-    ],
+custom_go_test(
+    name = "dg-query_performance_test",
+    srcs = ["main_perf_test.go"],
+    tag = "performance",
 )

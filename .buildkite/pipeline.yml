@@ -24,8 +24,14 @@ steps:
       - "echo '--- Run'"
       - bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
       
-      - "echo '--- Test'"
-      - bazel test --test_output=all --test_summary=detailed //... 
+      - "echo '--- Test unit'"
+      - bazel test --test_tag_filters=unit --test_output=all --test_summary=detailed //... 
+
+      - "echo '--- Test integration'"
+      - bazel test --test_tag_filters=integration --test_output=all --test_summary=detailed //... 
+
+      - "echo '--- Test performance'"
+      - bazel test --test_tag_filters=performance --test_output=all --test_summary=detailed //... 
 
       - "echo '--- Code coverage'"
       - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml 
