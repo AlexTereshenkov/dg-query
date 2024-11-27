@@ -12,6 +12,7 @@ steps:
       - bazel --version
       - bazel build //...
       - ls bazel-*
+      - echo "common --show_timestamps" > .bazelrc.ci
       
       - "echo '--- Static checks'"
       - "echo 'Gazelle'"
