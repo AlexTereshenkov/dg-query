@@ -383,6 +383,174 @@ func TestMetricsReverseDependenciesTransitive(t *testing.T) {
 	}
 }
 
+func TestMetricsConnectedComponentsCount(t *testing.T) {
+	cases := []TestCase{
+		// base case
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["spam"],
+				"baz": ["eggs"],
+				"eggs": ["cheese"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 2,
+			},
+		},
+		// empty graph
+		{
+			input: []byte(`
+			{
+			}
+			`),
+			expected: map[string]int{
+				"count": 0,
+			},
+		},
+		// one component
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["spam"],
+				"spam": ["eggs"],
+				"eggs": ["cheese"],
+				"cheese": []
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+		// one component
+		{
+			input: []byte(`
+			{
+				"foo": []
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+		// three components with each component being a single node
+		{
+			input: []byte(`
+			{
+				"foo": [],
+				"bar": [],
+				"baz": []
+			}
+			`),
+			expected: map[string]int{
+				"count": 3,
+			},
+		},
+		// two components
+		{
+			input: []byte(`
+			{
+				"foo": ["bar", "baz"],
+				"bar": ["eggs", "spam"],
+				"baz": ["ham", "beans"],
+
+				"foo1": ["bar1", "baz1"],
+				"bar1": ["eggs1", "spam1"],
+				"baz1": ["ham1", "beans1"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 2,
+			},
+		},
+		// three components with components of varying size
+		{
+			input: []byte(`
+			{
+				"foo": ["bar", "baz"],
+				"bar": ["baz"],
+				"ham": ["beans"],
+				"cheese": []
+			}
+			`),
+			expected: map[string]int{
+				"count": 3,
+			},
+		},
+		// complex interconnected graph with four components
+		{
+			input: []byte(`
+			{
+				"a": ["b", "c"],
+				"b": ["d"],
+				"e": ["f"],
+				"g": ["h"],
+				"h": ["i"],
+				"i": ["g"],
+				"j": []				
+			}
+			`),
+			expected: map[string]int{
+				"count": 4,
+			},
+		},
+		// one cycle is one component
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["baz"],
+				"baz": ["foo"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+		// one cycle with the node connected to itself is still one component
+		{
+			input: []byte(`
+			{
+				"foo": ["foo"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+		// two cycles is two components
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["foo"],
+				"baz": ["spam"],
+				"spam": ["baz"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 2,
+			},
+		},
+	}
+
+	for _, testCase := range cases {
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
+		}
+		metricsItems := []string{MetricConnectedComponentsCount}
+		result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
+		var actualOutput map[string]map[string]int
+		json.Unmarshal(result, &actualOutput)
+		assert.Equal(t, testCase.expected, actualOutput["components-count"])
+	}
+}
+
 func TestMetricsCombined(t *testing.T) {
 	input := []byte(`
 	{
