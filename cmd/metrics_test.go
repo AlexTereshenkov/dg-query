@@ -383,6 +383,121 @@ func TestMetricsReverseDependenciesTransitive(t *testing.T) {
 	}
 }
 
+func TestMetricsConnectedComponentsCount(t *testing.T) {
+	cases := []TestCase{
+		// base case
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["spam"],
+				"baz": ["eggs"],
+				"eggs": ["cheese"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 2,
+			},
+		},
+		// one component
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["spam"],
+				"spam": ["eggs"],
+				"eggs": ["cheese"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+		// no components
+		{
+			input: []byte(`
+			{
+				"foo": []
+			}
+			`),
+			expected: map[string]int{
+				"count": 0,
+			},
+		},
+		// two components with each component being a single node
+		{
+			input: []byte(`
+			{
+				"foo": [],
+				"bar": [],
+				"baz": []
+			}
+			`),
+			expected: map[string]int{
+				"count": 2,
+			},
+		},
+		// two components with each component being a single node
+		{
+			input: []byte(`
+			{
+				"foo": ["bar", "baz"],
+				"bar": ["eggs", "spam"],
+				"baz": ["ham", "beans"],
+
+				"foo1": ["bar1", "baz1"],
+				"bar1": ["eggs1", "spam1"],
+				"baz1": ["ham1", "beans1"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+		// one cycle is not a component
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["baz"],
+				"baz": ["foo"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 0,
+			},
+		},
+		// two cycles
+		{
+			input: []byte(`
+			{
+				"foo": ["bar"],
+				"bar": ["foo"],
+				"baz": ["spam"],
+				"spam": ["baz"]
+			}
+			`),
+			expected: map[string]int{
+				"count": 1,
+			},
+		},
+	}
+
+	for _, testCase := range cases {
+		MockReadFile := func(filePath string) ([]byte, error) {
+			return testCase.input, nil
+		}
+		metricsItems := []string{MetricConnectedComponentsCount}
+		result, err := metrics("mock.json", "", metricsItems, MockReadFile)
+		if err != nil {
+			t.Fail()
+		}
+		var actualOutput map[string]map[string]int
+		json.Unmarshal(result, &actualOutput)
+		assert.Equal(t, testCase.expected, actualOutput["components-count"])
+	}
+}
+
 func TestMetricsCombined(t *testing.T) {
 	input := []byte(`
 	{

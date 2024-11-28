@@ -7,6 +7,7 @@ import (
 	"encoding/json"
 	"log"
 	"slices"
+	"sort"
 	"strings"
 )
 
@@ -17,6 +18,8 @@ const (
 	MetricDependenciesTransitive        = "deps-transitive"
 	MetricReverseDependenciesDirect     = "rdeps-direct"
 	MetricReverseDependenciesTransitive = "rdeps-transitive"
+	// https://en.wikipedia.org/wiki/Component_(graph_theory)
+	MetricConnectedComponentsCount = "components-count"
 )
 
 var allowedMetrics = []string{
@@ -24,6 +27,7 @@ var allowedMetrics = []string{
 	MetricDependenciesTransitive,
 	MetricReverseDependenciesDirect,
 	MetricReverseDependenciesTransitive,
+	MetricConnectedComponentsCount,
 }
 
 func isValidMetric(metric string) bool {
@@ -84,6 +88,59 @@ func getMetricDependenciesTransitive(adjacencyList AdjacencyList) GenericMapStri
 	return depsCount
 }
 
+// getConnectedComponents finds connected components in a graph
+func getConnectedComponents(adjList AdjacencyList) []map[string]struct{} {
+	visitedNodes := make(map[string]bool)
+	var components []map[string]struct{}
+
+	// Collect all nodes in the graph (keys and values)
+	allNodes := make(map[string]struct{})
+	for node, neighbors := range adjList {
+		allNodes[node] = struct{}{}
+		for _, neighbor := range neighbors {
+			allNodes[neighbor] = struct{}{}
+		}
+	}
+
+	// Ensure nodes are sorted for consistent traversal order
+	var nodeList []string
+	for node := range allNodes {
+		nodeList = append(nodeList, node)
+	}
+	sort.Strings(nodeList)
+
+	// dfs finds reachable nodes in a graph
+	var dfs func(node string, adjacencyList map[string][]string, visited map[string]bool, component map[string]struct{})
+	dfs = func(node string, adjacencyList map[string][]string, visitedNodes map[string]bool, component map[string]struct{}) {
+		visitedNodes[node] = true
+		component[node] = struct{}{}
+		for _, neighbor := range adjacencyList[node] {
+			if !visitedNodes[neighbor] {
+				dfs(neighbor, adjacencyList, visitedNodes, component)
+			}
+		}
+	}
+
+	// Traverse the graph and find all components
+	for _, node := range nodeList {
+		if !visitedNodes[node] {
+			component := make(map[string]struct{})
+			// Start DFS from an unvisited node
+			dfs(node, adjList, visitedNodes, component)
+			components = append(components, component)
+		}
+	}
+	return components
+}
+
+// getConnectedComponentsCount gets count of connected components in a graph
+func getConnectedComponentsCount(adjacencyList AdjacencyList) GenericMapStringToAny {
+	connectedComponentsCount := make(GenericMapStringToAny)
+	// the initial node can be discarded
+	connectedComponentsCount["count"] = len(getConnectedComponents(adjacencyList)) - 1
+	return connectedComponentsCount
+}
+
 // to be used in non-unit tests
 var Metrics = metrics
 
@@ -96,7 +153,9 @@ func metrics(filePathDg string, filePathDgReverse string, metricsItems []string,
 
 	report := make(map[string]map[string]interface{})
 	// use dependencies adjacency list as is
-	if slices.Contains(metricsItems, MetricDependenciesDirect) || slices.Contains(metricsItems, MetricDependenciesTransitive) {
+	if slices.Contains(metricsItems, MetricDependenciesDirect) ||
+		slices.Contains(metricsItems, MetricDependenciesTransitive) ||
+		slices.Contains(metricsItems, MetricConnectedComponentsCount) {
 		jsonData, err := readFile(filePathDg)
 		if err != nil {
 			return nil, err
@@ -155,6 +214,10 @@ func metrics(filePathDg string, filePathDgReverse string, metricsItems []string,
 
 		case MetricReverseDependenciesTransitive:
 			report[metric] = getMetricDependenciesTransitive(adjacencyListReverse)
+
+		case MetricConnectedComponentsCount:
+			report[metric] = getConnectedComponentsCount(adjacencyList)
+
 		}
 	}
 	reportJson, _ := json.MarshalIndent(report, "", "  ")
