@@ -12,13 +12,19 @@ import (
 	"github.com/spf13/cobra"
 )
 
+// This variable is going to be set by Bazel during stamping a Go binary;
+// https://github.com/bazel-contrib/rules_go/blob/master/docs/go/core/defines_and_stamping.md
+var Version = "(redacted)"
+
 // RootCmd represents the base command when called without any subcommands.
 // This needs to be exported to be available to `main.go`.
 var RootCmd = &cobra.Command{
 	Use:   "dg-query",
 	Short: "A command-line utility program to query dependency graph of a codebase.",
 	Long: `A command-line utility program to query dependency graph of a codebase
-which operates on the adjacency list data stored as a JSON file.`,
+which operates on the adjacency list data stored as a JSON file. 
+
+Git revision: ` + Version,
 }
 
 // getting dependencies of given targets in the dependency graph
