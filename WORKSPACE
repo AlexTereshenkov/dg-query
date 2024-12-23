@@ -1,6 +1,11 @@
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_archive")
 load("@bazel_tools//tools/build_defs/repo:http.bzl", "http_file")
 
+# to support spawning actions in a Docker container
+register_execution_platforms(
+    "//platforms:docker",
+)
+
 http_archive(
     name = "com_github_sluongng_nogo_analyzer",
     sha256 = "0dc6b5e86094d081e05bcd0c3e41fc275a2398c64e545376166139412181f150",
