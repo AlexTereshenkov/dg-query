@@ -1,4 +1,4 @@
-build --noenable_bzlmod
+common --noenable_bzlmod
 
 test --test_output=all
 test --test_summary=detailed
