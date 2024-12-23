@@ -1,3 +1,5 @@
+build --noenable_bzlmod
+
 test --test_output=all
 test --test_summary=detailed
 test --test_arg=-test.v
