@@ -119,6 +119,24 @@ var pathsCmd = &cobra.Command{
 	},
 }
 
+var cyclesCmd = &cobra.Command{
+	Use:   "cycles",
+	Short: "Find cycles in the dependency graph",
+	Long:  `Find cycles in the dependency graph`,
+	Run: func(cmd *cobra.Command, targets []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		result, err := cycles(filePath, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		resultJson, _ := json.MarshalIndent(result, "", "  ")
+		cmd.OutOrStdout().Write(resultJson)
+		cmd.OutOrStdout().Write([]byte("\n"))
+
+	},
+}
+
 // JSON file with the dependency graph represented as an adjacency list
 var dg string
 var rdg string
@@ -146,6 +164,7 @@ func init() {
 	// will be global for your application.
 	RootCmd.AddCommand(metricsCmd)
 	RootCmd.AddCommand(pathsCmd)
+	RootCmd.AddCommand(cyclesCmd)
 	RootCmd.AddCommand(dependenciesCmd)
 	RootCmd.AddCommand(dependentsCmd)
 

@@ -9,6 +9,7 @@ exports_files(
 go_library(
     name = "cmd",
     srcs = [
+        "cycles.go",
         "dependencies.go",
         "dependents.go",
         "dg.go",
@@ -29,6 +30,7 @@ go_library(
 go_test(
     name = "cmd_test",
     srcs = [
+        "cycles_test.go",
         "dependencies_test.go",
         "dependents_test.go",
         "metrics_test.go",

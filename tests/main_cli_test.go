@@ -59,6 +59,25 @@ func TestCliPaths(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliCycles(t *testing.T) {
+
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs([]string{"cycles", "--dg=examples/dg.json"})
+	cmd.RootCmd.Execute()
+
+	expected := []byte(`[]`)
+
+	var actualOutput [][]string
+	var expectedOutput [][]string
+	json.Unmarshal(buf.Bytes(), &actualOutput)
+	json.Unmarshal(expected, &expectedOutput)
+	assert.Equal(t, expectedOutput, actualOutput)
+	buf.Reset()
+}
+
 func TestCliMetrics(t *testing.T) {
 
 	var buf bytes.Buffer
