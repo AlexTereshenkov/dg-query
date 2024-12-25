@@ -1,0 +1,10 @@
+load("@io_bazel_rules_go//go:def.bzl", "go_test")
+
+# When running `bazel test //...` on non-Windows machine, this test is skipped
+# gazelle:ignore
+go_test(
+    name = "windows_test",
+    srcs = ["windows_test.go"],
+    target_compatible_with = ["@platforms//os:windows"],
+    deps = ["@com_github_stretchr_testify//assert"],
+)

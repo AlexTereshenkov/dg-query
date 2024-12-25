@@ -9,4 +9,5 @@ def custom_go_test(name, srcs, tag, data = ["examples/dg.json"], deps = ["//cmd"
         data = data,
         deps = deps,
         tags = [tag],
+        target_compatible_with = ["@platforms//os:linux"],
     )
