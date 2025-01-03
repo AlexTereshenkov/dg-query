@@ -84,13 +84,16 @@ func TestCliMetrics(t *testing.T) {
 	cmd.RootCmd.SetOut(&buf)
 	cmd.RootCmd.SetErr(&buf)
 
-	cmd.RootCmd.SetArgs(append([]string{"metrics",
-		"--metric=deps-direct", "--metric=deps-transitive", "--metric=rdeps-direct", "--metric=rdeps-transitive",
-		"--dg=examples/dg.json"}, "foo.py"))
+	cmd.RootCmd.SetArgs([]string{"metrics",
+		"--metric=deps-direct", "--metric=deps-transitive", "--metric=rdeps-direct", "--metric=rdeps-transitive", "--metric=components-count",
+		"--dg=examples/dg.json"})
 	cmd.RootCmd.Execute()
 
 	expected := []byte(`
 		{
+		"components-count": {
+			"count": 2
+		},
 		"deps-direct": {
 			"foo-dep1.py": 2,
 			"foo.py": 2,
