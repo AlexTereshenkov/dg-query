@@ -60,14 +60,19 @@ Options:
 * specify depth when searching for dependents transitively (`--depth`)
 * include the build target itself in the output (`--reflexive`)
 
-### paths
+### `paths`
 Get paths between individual targets.
 
 Options:
 * `--from` and `--to` targets to find paths between
 * `--n` limits the number of paths returned (helpful with a large graph)
 
-### metrics
+### `cycles`
+Find [cycles](https://en.wikipedia.org/wiki/Cycle_(graph_theory)) in the dependency graph.
+This is useful when you use a build system that doesn't tolerate cycles and you want to
+get a list of all of them at once.
+
+### `metrics`
 
 Get dependency graph related metrics. A dependency graph (`--dg`) may be used,
 or a reverse dependency graph (`--rdg`) may be used, if you have one.
@@ -75,3 +80,4 @@ or a reverse dependency graph (`--rdg`) may be used, if you have one.
 Metrics:
 * dependency count (optionally, transitively)
 * dependent count (optionally, transitively)
+* [connected components](https://en.wikipedia.org/wiki/Component_(graph_theory)) count (few components suggests a very tight graph)
