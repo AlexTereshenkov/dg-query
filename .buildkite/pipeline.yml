@@ -10,9 +10,7 @@ steps:
       
       - "echo '--- Build'"
       - bazel --version
-      - bazel build //...
-      - ls bazel-*
-      - echo "common --show_timestamps" > .bazelrc.ci
+      - build-support/create-bazelrc-ci.sh
       
       - "echo '--- Static checks'"
       - "echo 'Gazelle'"
@@ -40,7 +38,7 @@ steps:
       - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml 
     
       - "echo '--- Release binary with a stamp'"
-      - bazel build //:dg-query --stamp --workspace_status_command="build-support/workspace-status.sh"
+      - bazel build //:dg-query --stamp
       - bazel-bin/dg-query_/dg-query | grep "Git revision"
 
     artifact_paths: 
@@ -56,6 +54,7 @@ steps:
       
       - "echo '--- Build'"
       - bazel --version
+      - build-support/create-bazelrc-ci.sh
       # `--load` ensures that the image built is loaded into the local Docker environment, 
       # making it immediately available to run or reference by tag; otherwise, the image 
       # will only exist in Docker's build cache.
