@@ -2,7 +2,7 @@
 # constraint_value()s and platform()s that are universally useful across languages.
 # See https://bazel.build/extending/platforms to learn more about platforms.
 
-# to support spawning actions in a Docker container
+# To support spawning actions in a Docker container
 platform(
     name = "docker",
     constraint_values = [
@@ -10,8 +10,15 @@ platform(
         "@platforms//os:linux",
     ],
     exec_properties = {
-        "container-image": "docker://docker.io/go-build-env:latest",
+        # This can be changed to "docker://docker.io/go-build-env:latest"
+        # if a custom Docker image (built locally from the Dockerfile)
+        # needs to be used; this would require making sure that this
+        # Docker image is available on remote executors or only building
+        # targets while excluding any dependent targets or toolchains that
+        # might require that particular Docker image.
+        "container-image": "docker://docker.io/golang:1.22",
     },
+    tags = ["platform-docker"],
 )
 
 # Running `bazel test //... --platforms="//platforms:windows"` would result in running
@@ -22,4 +29,5 @@ platform(
         "@platforms//cpu:x86_64",
         "@platforms//os:windows",
     ],
+    tags = ["platform-windows"],
 )
