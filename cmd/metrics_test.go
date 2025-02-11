@@ -11,13 +11,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type TestCase struct {
+type TestCaseMetrics struct {
 	input    []byte
 	expected map[string]int
 }
 
 func TestMetricsDependenciesDirect(t *testing.T) {
-	cases := []TestCase{
+	cases := []TestCaseMetrics{
 		// base case
 		{
 			input: []byte(`
@@ -92,7 +92,7 @@ func TestMetricsDependenciesDirect(t *testing.T) {
 }
 
 func TestMetricsDependenciesTransitive(t *testing.T) {
-	cases := []TestCase{
+	cases := []TestCaseMetrics{
 		// base case
 		{
 			input: []byte(`
@@ -219,7 +219,7 @@ func TestMetricsDependenciesTransitive(t *testing.T) {
 }
 
 func TestMetricsReverseDependenciesDirect(t *testing.T) {
-	cases := []TestCase{
+	cases := []TestCaseMetrics{
 		// base case
 		{
 			input: []byte(`
@@ -289,7 +289,7 @@ func TestMetricsReverseDependenciesDirect(t *testing.T) {
 }
 
 func TestMetricsReverseDependenciesTransitive(t *testing.T) {
-	cases := []TestCase{
+	cases := []TestCaseMetrics{
 		// base case
 		{
 			input: []byte(`
@@ -384,7 +384,7 @@ func TestMetricsReverseDependenciesTransitive(t *testing.T) {
 }
 
 func TestMetricsConnectedComponentsCount(t *testing.T) {
-	cases := []TestCase{
+	cases := []TestCaseMetrics{
 		// base case
 		{
 			input: []byte(`

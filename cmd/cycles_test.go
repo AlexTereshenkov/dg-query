@@ -9,9 +9,14 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
+type testCaseCycles struct {
+	input    []byte
+	expected [][]string
+}
+
 func TestFindCycles(t *testing.T) {
 
-	cases := []testCasePaths{
+	cases := []testCaseCycles{
 		// no cycles
 		{
 			input: []byte(`{
