@@ -78,6 +78,23 @@ func TestCliCycles(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliSubgraph(t *testing.T) {
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs([]string{"subgraph", "--dg=examples/dg.json", "--root=foo-dep1.py"})
+	cmd.RootCmd.Execute()
+
+	expected := []byte(`{"foo-dep1.py": ["foo-dep1-dep1.py","foo-dep1-dep2.py"]}`)
+	var actualOutput cmd.AdjacencyList
+	var expectedOutput cmd.AdjacencyList
+	json.Unmarshal(buf.Bytes(), &actualOutput)
+	json.Unmarshal(expected, &expectedOutput)
+	assert.Equal(t, expectedOutput, actualOutput)
+	buf.Reset()
+}
+
 func TestCliMetrics(t *testing.T) {
 
 	var buf bytes.Buffer

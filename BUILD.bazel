@@ -59,6 +59,7 @@ sh_binary(
         # the files are not included into the runfiles directory for some reason, so listing
         # them individually is required
         "//cmd:cycles.go",
+        "//cmd:cycles_test.go",
         "//cmd:dependencies.go",
         "//cmd:dependencies_test.go",
         "//cmd:dependents.go",
@@ -69,6 +70,8 @@ sh_binary(
         "//cmd:paths.go",
         "//cmd:paths_test.go",
         "//cmd:root.go",
+        "//cmd:subgraph.go",
+        "//cmd:subgraph_test.go",
     ],
     visibility = ["//visibility:public"],
 )
