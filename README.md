@@ -72,6 +72,10 @@ Find [cycles](https://en.wikipedia.org/wiki/Cycle_(graph_theory)) in the depende
 This is useful when you use a build system that doesn't tolerate cycles and you want to
 get a list of all of them at once.
 
+### `subgraph`
+Extract [subgraph](https://en.wikipedia.org/wiki/Glossary_of_graph_theory#subgraph) out of the dependency graph.
+This is useful when you want to visualize a subset of the dependency graph or study it closer.
+
 ### `metrics`
 
 Get dependency graph related metrics. A dependency graph (`--dg`) may be used,

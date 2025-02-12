@@ -137,6 +137,25 @@ var cyclesCmd = &cobra.Command{
 	},
 }
 
+var subgraphCmd = &cobra.Command{
+	Use:   "subgraph",
+	Short: "Extract a subgraph out of the dependency graph",
+	Long:  `Extract a subgraph out of the dependency graph`,
+	Run: func(cmd *cobra.Command, targets []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		rootNode, _ := cmd.Flags().GetString("root")
+		result, err := extractSubgraph(filePath, rootNode, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		resultJson, _ := json.MarshalIndent(result, "", "  ")
+		cmd.OutOrStdout().Write(resultJson)
+		cmd.OutOrStdout().Write([]byte("\n"))
+
+	},
+}
+
 // JSON file with the dependency graph represented as an adjacency list
 var dg string
 var rdg string
@@ -147,6 +166,9 @@ var metricsFlags []string
 // paths command from and to targets
 var fromTarget string
 var toTarget string
+
+// subgraph command root node
+var rootNode string
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the RootCmd.
@@ -165,6 +187,7 @@ func init() {
 	RootCmd.AddCommand(metricsCmd)
 	RootCmd.AddCommand(pathsCmd)
 	RootCmd.AddCommand(cyclesCmd)
+	RootCmd.AddCommand(subgraphCmd)
 	RootCmd.AddCommand(dependenciesCmd)
 	RootCmd.AddCommand(dependentsCmd)
 
@@ -187,6 +210,8 @@ func init() {
 	dependentsCmd.Flags().BoolP("transitive", "", false, "Get transitive dependents")
 	dependentsCmd.Flags().BoolP("reflexive", "", false, "Include input targets in the output")
 	dependentsCmd.Flags().Int("depth", 0, "Depth of search for transitive dependents")
+
+	subgraphCmd.Flags().StringVar(&rootNode, "root", "", "Root node for the subgraph to extract")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
