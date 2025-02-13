@@ -1,10 +1,4 @@
-load("@io_bazel_rules_go//go:def.bzl", "go_library", "go_test")
-
-# this is to be able to include Go sources into the sh_binary target generating HTML report
-exports_files(
-    glob(["*.go"]),
-    visibility = ["//visibility:public"],
-)
+load("@rules_go//go:def.bzl", "go_library", "go_test")
 
 go_library(
     name = "cmd",
