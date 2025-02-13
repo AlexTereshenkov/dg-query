@@ -12,6 +12,7 @@ import (
 
 	"github.com/AlexTereshenkov/dg-query/cmd"
 	"github.com/stretchr/testify/assert"
+	"github.com/spf13/cast"
 )
 
 func createAdjacencyLists(nodesCount int) map[string][]string {
@@ -19,7 +20,7 @@ func createAdjacencyLists(nodesCount int) map[string][]string {
 	for i := 1; i <= nodesCount; i++ {
 		node := strconv.Itoa(i)
 		if i < nodesCount {
-			nextNode := strconv.Itoa(i + 1)
+			nextNode := cast.ToString(i + 1)
 			graph[node] = []string{nextNode}
 		} else {
 			graph[node] = []string{}
