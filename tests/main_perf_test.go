@@ -11,8 +11,8 @@ import (
 	"time"
 
 	"github.com/AlexTereshenkov/dg-query/cmd"
-	"github.com/stretchr/testify/assert"
 	"github.com/spf13/cast"
+	"github.com/stretchr/testify/assert"
 )
 
 func createAdjacencyLists(nodesCount int) map[string][]string {

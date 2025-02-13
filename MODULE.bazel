@@ -10,6 +10,9 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.0.1")
 go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
 go_deps.from_file(go_mod = "//:go.mod")
 
+go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
+go_sdk.nogo(nogo = "//:nogo")
+
 # All *direct* Go dependencies of the module have to be listed explicitly.
 use_repo(
     go_deps,
