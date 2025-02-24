@@ -11,7 +11,7 @@ buildifier(
 )
 
 buildifier(
-    name = "buildifier.check",
+    name = "buildifier-check",
     lint_mode = "warn",
     mode = "diff",
 )
