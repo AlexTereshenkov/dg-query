@@ -35,3 +35,17 @@ go_binary(
     embed = [":dg-query_lib"],
     visibility = ["//visibility:public"],
 )
+
+sh_binary(
+    name = "run_coverage_with_genhtml",
+    srcs = ["scripts/codecov.sh"],
+    args = ["$(location @lcov//:bin/genhtml)"],
+    data = [
+        "@lcov//:bin/genhtml",
+        # if for some reason there will be a problem to refer to files with a `glob` or `filegroup`
+        # (the files are not included into the runfiles directory for some reason), you can list
+        # them individually here
+        "//cmd:exported_go_files",
+    ],
+    visibility = ["//visibility:public"],
+)

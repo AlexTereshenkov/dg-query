@@ -33,7 +33,7 @@ steps:
       - bazel test --test_tag_filters=performance --test_output=all --test_summary=detailed --runs_per_test=10 //... 
 
       - "echo '--- Code coverage'"
-      - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml 
+      - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml && ls coverage-html/index.html
     
       - "echo '--- Release binary with a stamp'"
       - bazel build //:dg-query --stamp
