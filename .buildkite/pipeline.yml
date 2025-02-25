@@ -18,9 +18,7 @@ steps:
       - "echo 'Buildifier'"
       - bazel run //:buildifier-check
       - "echo 'gofmt'"
-      # getting exit code 1 despite not needing to format anything, 
-      # so running the gofmt in "check" mode and not inspecting the exit code.
-      - bazel run @go_sdk//:bin/gofmt -- -s -l .
+      - output=$(bazel run @rules_go//go -- fmt .) && [[ -n "$output" ]] && echo "$output" && exit 1 || echo "No formatting required"
 
       - "echo '--- Run'"
       - bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
@@ -35,7 +33,7 @@ steps:
       - bazel test --test_tag_filters=performance --test_output=all --test_summary=detailed --runs_per_test=10 //... 
 
       - "echo '--- Code coverage'"
-      - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml 
+      - bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml && ls coverage-html/index.html
     
       - "echo '--- Release binary with a stamp'"
       - bazel build //:dg-query --stamp

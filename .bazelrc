@@ -1,4 +1,4 @@
-common --noenable_bzlmod
+common --enable_bzlmod
 
 # this is to pass build metadata to BuildBuddy and other parties
 build --workspace_status_command="build-support/workspace-status.sh

@@ -1,44 +1,35 @@
-load("@bazel_gazelle//:def.bzl", "gazelle")
-load("@com_github_sluongng_nogo_analyzer//:def.bzl", "nogo_config")
-load("@com_github_sluongng_nogo_analyzer//staticcheck:def.bzl", "staticcheck_analyzers")
-load("@io_bazel_rules_go//go:def.bzl", "go_binary", "go_library", "nogo")
-load(":staticcheck.bzl", "STATICCHECK_ANALYZERS", "STATICCHECK_OVERRIDE")
+load("@buildifier_prebuilt//:rules.bzl", "buildifier")
+load("@gazelle//:def.bzl", "gazelle")
+load("@rules_go//go:def.bzl", "TOOLS_NOGO", "go_binary", "go_library", "nogo")
 
-nogo_config(
-    name = "nogo_config",
-    out = "nogo_config.json",
-    analyzers = STATICCHECK_ANALYZERS,
-    override = STATICCHECK_OVERRIDE,
-)
-
-nogo(
-    name = "nogo",
-    config = ":nogo_config.json",
-    visibility = ["//visibility:public"],
-    deps = staticcheck_analyzers(STATICCHECK_ANALYZERS),
-)
-
-# gazelle:prefix github.com/AlexTereshenkov/dg-query
-
-# Docs: https://github.com/bazelbuild/bazel-gazelle?tab=readme-ov-file#directives
 gazelle(name = "gazelle")
 
-# Docs: https://github.com/bazelbuild/bazel-gazelle?tab=readme-ov-file#setup
-gazelle(
-    name = "update-deps",
-    args = [
-        "-from_file=go.mod",
-        "-to_macro=deps.bzl%go_dependencies",
-        "-prune",
-    ],
-    command = "update-repos",
+buildifier(
+    name = "buildifier",
+    lint_mode = "fix",
+    mode = "fix",
+)
+
+buildifier(
+    name = "buildifier-check",
+    lint_mode = "warn",
+    mode = "diff",
+)
+
+# this would cause nogo analyzer to fail when running `bazel build //...`
+# obj := false; res := fmt.Sprintf("%d", obj); fmt.Println(res)
+# go run main.go subgraph --dg="examples/dg-linked-list.json" --root="7"
+nogo(
+    name = "nogo",
+    visibility = ["//visibility:public"],
+    deps = TOOLS_NOGO,
 )
 
 go_library(
     name = "dg-query_lib",
     srcs = ["main.go"],
     importpath = "github.com/AlexTereshenkov/dg-query",
-    visibility = ["//visibility:public"],
+    visibility = ["//visibility:private"],
     deps = ["//cmd"],
 )
 
@@ -51,63 +42,13 @@ go_binary(
 sh_binary(
     name = "run_coverage_with_genhtml",
     srcs = ["scripts/codecov.sh"],
-    args = ["$(location @lcov//:genhtml)"],
+    args = ["$(location @lcov//:bin/genhtml)"],
     data = [
-        "@lcov//:genhtml",
-        "@lcov//:bin",
-        # find a way to refer to files with a `glob` or `filegroup`; none of these worked --
-        # the files are not included into the runfiles directory for some reason, so listing
-        # them individually is required
-        "//cmd:cycles.go",
-        "//cmd:cycles_test.go",
-        "//cmd:dependencies.go",
-        "//cmd:dependencies_test.go",
-        "//cmd:dependents.go",
-        "//cmd:dependents_test.go",
-        "//cmd:dg.go",
-        "//cmd:metrics.go",
-        "//cmd:metrics_test.go",
-        "//cmd:paths.go",
-        "//cmd:paths_test.go",
-        "//cmd:root.go",
-        "//cmd:subgraph.go",
-        "//cmd:subgraph_test.go",
+        "@lcov//:bin/genhtml",
+        # if for some reason there will be a problem to refer to files with a `glob` or `filegroup`
+        # (the files are not included into the runfiles directory for some reason), you can list
+        # them individually here
+        "//cmd:exported_go_files",
     ],
-    visibility = ["//visibility:public"],
-)
-
-filegroup(
-    name = "buildifier_bin",
-    srcs = ["@buildifier//file:buildifier"],
-)
-
-# to enable formatting of *.bzl files that are not picked up by Gazelle
-sh_binary(
-    name = "buildifier",
-    srcs = ["@buildifier//file:buildifier"],
-    args = [
-        "--lint=fix",
-        "-r",
-        ".",
-    ],
-    # one cannot use `glob` inside a Bazel package (as there's `tests/BUILD.bazel` file)
-    # so the file is stored in `defs/` instead
-    data = glob(["defs/defs.*"]),
-    visibility = ["//visibility:public"],
-)
-
-# TODO: put in a macro instead (why can't built-in targets be found in .bzl file?)
-sh_binary(
-    name = "buildifier-check",
-    srcs = ["@buildifier//file:buildifier"],
-    args = [
-        "--lint=warn",
-        "--mode=check",
-        "-r",
-        ".",
-    ],
-    # one cannot use `glob` inside a Bazel package (as there's `tests/BUILD.bazel` file)
-    # so the file is stored in `defs/` instead
-    data = glob(["defs/defs.*"]),
     visibility = ["//visibility:public"],
 )
