@@ -6,7 +6,6 @@ package main
 import (
 	"encoding/json"
 	"slices"
-	"strconv"
 	"testing"
 	"time"
 
@@ -18,7 +17,7 @@ import (
 func createAdjacencyLists(nodesCount int) map[string][]string {
 	graph := make(map[string][]string)
 	for i := 1; i <= nodesCount; i++ {
-		node := strconv.Itoa(i)
+		node := cast.ToString(i)
 		if i < nodesCount {
 			nextNode := cast.ToString(i + 1)
 			graph[node] = []string{nextNode}
@@ -47,7 +46,7 @@ func TestDependenciesCommandPerfDeepGraph(t *testing.T) {
 	}
 	expected := make([]string, nodesCount-1)
 	for i := range expected {
-		expected[i] = strconv.Itoa(i + 2)
+		expected[i] = cast.ToString(i + 2)
 	}
 
 	assert.ElementsMatch(t, expected, result, "Failing assertion")
@@ -78,7 +77,7 @@ func TestDependenciesCommandPerfDeepGraphDepthLimit(t *testing.T) {
 	}
 	expected := make([]string, 512)
 	for i := range expected {
-		expected[i] = strconv.Itoa(i + 2)
+		expected[i] = cast.ToString(i + 2)
 	}
 
 	assert.ElementsMatch(t, expected, result, "Failing assertion")
@@ -112,7 +111,7 @@ func TestDependentsCommandPerfDeepGraph(t *testing.T) {
 
 	expected := make([]string, nodesCount-1)
 	for i := range expected {
-		expected[i] = strconv.Itoa(i + 1)
+		expected[i] = cast.ToString(i + 1)
 	}
 	slices.Sort(expected)
 	assert.ElementsMatch(t, expected, result, "Failing assertion")
@@ -168,13 +167,13 @@ func TestPathsCommandPerfDeepGraph(t *testing.T) {
 		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
 		return lists, nil
 	}
-	result, err := cmd.Paths("mock.json", "1", strconv.Itoa(nodesCount), 0, MockReadFile)
+	result, err := cmd.Paths("mock.json", "1", cast.ToString(nodesCount), 0, MockReadFile)
 	if err != nil {
 		t.Fail()
 	}
 	expected := make([]string, nodesCount)
 	for i := 0; i < nodesCount; i++ {
-		expected[i] = strconv.Itoa(i + 1)
+		expected[i] = cast.ToString(i + 1)
 	}
 
 	assert.ElementsMatch(t, expected, result[0], "Failing assertion")
