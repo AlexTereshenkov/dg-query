@@ -16,19 +16,24 @@ echo '--- Run'
 bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
       
 echo '--- Test unit'
-bazel test --test_tag_filters=unit --test_output=all --test_summary=detailed //... --runs_per_test=20 //...
+bazel test --test_tag_filters=unit --test_output=all --test_summary=detailed //... --runs_per_test=20 //... | sed 's/^=== //' | sed 's/^--- //'
 
 echo '--- Test integration'
-bazel test --test_tag_filters=integration --test_output=all --test_summary=detailed //... 
+bazel test --test_tag_filters=integration --test_output=all --test_summary=detailed //... | sed 's/^=== //' | sed 's/^--- //'
 
 echo '--- Test performance'
-bazel test --test_tag_filters=performance --test_output=all --test_summary=detailed --runs_per_test=10 //... 
+bazel test --test_tag_filters=performance --test_output=all --test_summary=detailed --runs_per_test=10 //... | sed 's/^=== //' | sed 's/^--- //'
 
 echo '--- Code coverage'
-bazel coverage //... --combined_report=lcov && bazel run //:run_coverage_with_genhtml && ls coverage-html/index.html
+bazel coverage //... --combined_report=lcov | sed 's/^=== //' | sed 's/^--- //' && bazel run //:run_coverage_with_genhtml && ls coverage-html/index.html
     
 echo '--- Release binary with a stamp'
 bazel build //:dg-query --stamp
 bazel-bin/dg-query_/dg-query | grep "Git revision"
 
+echo '--- Running a compiled CGo binary'
+bazel run //platforms/compiled:cgo-compiled
+
 rm .bazelrc.ci
+
+echo '--- Finish'
