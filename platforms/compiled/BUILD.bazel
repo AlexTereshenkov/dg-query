@@ -1,0 +1,15 @@
+load("@rules_go//go:def.bzl", "go_binary", "go_library")
+
+go_library(
+    name = "compiled_lib",
+    srcs = ["main.go"],
+    cgo = True,
+    importpath = "github.com/AlexTereshenkov/dg-query/platforms/compiled",
+    visibility = ["//visibility:private"],
+)
+
+go_binary(
+    name = "cgo-compiled",
+    embed = [":compiled_lib"],
+    visibility = ["//visibility:public"],
+)
