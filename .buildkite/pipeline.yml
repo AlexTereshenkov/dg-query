@@ -18,17 +18,7 @@ steps:
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
-      
-      - "echo '--- Build'"
-      - bazel --version
-      - build-support/create-bazelrc-ci.sh
-      # `--load` ensures that the image built is loaded into the local Docker environment, 
-      # making it immediately available to run or reference by tag; otherwise, the image 
-      # will only exist in Docker's build cache.
-      - docker build -t go-build-env -f platforms/Dockerfile --load .
-      - docker image ls
-      - bazel build //... --spawn_strategy=docker --experimental_enable_docker_sandbox --platforms="//platforms:docker"
-      - bazel test //...  --spawn_strategy=docker --experimental_enable_docker_sandbox --platforms="//platforms:docker"
+      - .buildkite/build-bazel-docker.sh
 
   - label: ":bazel: Build remote (BuildBuddy)"
     commands:
@@ -37,13 +27,7 @@ steps:
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
-      
-      - "echo '--- Build'"
-      - bazel --version
-      - build-support/create-bazelrc-ci.sh
-      - echo "build --remote_executor=grpcs://remote.buildbuddy.io" >> .bazelrc.ci
-      - bazel build //... 
-      - bazel test //...
+      - .buildkite/build-bazel-remote.sh
 
   - label: ":go: Build"
     commands:
