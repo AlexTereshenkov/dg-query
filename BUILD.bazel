@@ -6,12 +6,14 @@ gazelle(name = "gazelle")
 
 buildifier(
     name = "buildifier",
+    exclude_patterns = ["./defs/constants.bzl"],
     lint_mode = "fix",
     mode = "fix",
 )
 
 buildifier(
     name = "buildifier-check",
+    exclude_patterns = ["./defs/constants.bzl"],
     lint_mode = "warn",
     mode = "diff",
 )

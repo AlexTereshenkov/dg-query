@@ -9,6 +9,7 @@ echo 'Gazelle'
 bazel run //:gazelle -- -mode=diff
 echo 'Buildifier'
 bazel run //:buildifier-check
+bazel run //:buildifier
 echo 'gofmt'
 output=$(bazel run @rules_go//go -- fmt .) && [[ -n "$output" ]] && echo "$output" && exit 1 || echo "No formatting required"
 
