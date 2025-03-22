@@ -15,6 +15,7 @@ filegroup(
 go_library(
     name = "cmd",
     srcs = [
+        "components.go",
         "cycles.go",
         "dependencies.go",
         "dependents.go",
@@ -37,6 +38,7 @@ go_library(
 go_test(
     name = "cmd_test",
     srcs = [
+        "components_test.go",
         "cycles_test.go",
         "dependencies_test.go",
         "dependents_test.go",

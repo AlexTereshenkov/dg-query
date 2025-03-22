@@ -205,3 +205,26 @@ func TestSubgraphCommandPerfDeepGraph(t *testing.T) {
 		t.Fatalf("Getting subgraph in a large graph took too long: %s.", elapsedTime)
 	}
 }
+
+/*
+Testing performance of getting connected components for a root node in a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
+*/
+func TestConnectedComponentsCommandPerfDeepGraph(t *testing.T) {
+
+	startTime := time.Now()
+	nodesCount := 10000
+	MockReadFile := func(filePath string) ([]byte, error) {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists, nil
+	}
+	result, err := cmd.ListConnectedComponents("mock.json", MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, 10000, len(result[0]), "Failing assertion")
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 1 {
+		t.Fatalf("Getting subgraph in a large graph took too long: %s.", elapsedTime)
+	}
+}
