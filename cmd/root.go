@@ -156,6 +156,24 @@ var subgraphCmd = &cobra.Command{
 	},
 }
 
+var componentsCmd = &cobra.Command{
+	Use:   "components",
+	Short: "Get a list of connected components in the dependency graph",
+	Long:  `Get a list of connected components in the dependency graph`,
+	Run: func(cmd *cobra.Command, targets []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		result, err := listConnectedComponents(filePath, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		resultJson, _ := json.MarshalIndent(result, "", "  ")
+		cmd.OutOrStdout().Write(resultJson)
+		cmd.OutOrStdout().Write([]byte("\n"))
+
+	},
+}
+
 // JSON file with the dependency graph represented as an adjacency list
 var dg string
 var rdg string
@@ -190,6 +208,7 @@ func init() {
 	RootCmd.AddCommand(subgraphCmd)
 	RootCmd.AddCommand(dependenciesCmd)
 	RootCmd.AddCommand(dependentsCmd)
+	RootCmd.AddCommand(componentsCmd)
 
 	//make dg flag global for all commands as all of them will need dg data
 	RootCmd.PersistentFlags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")

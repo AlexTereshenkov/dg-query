@@ -1,4 +1,6 @@
-#! /bin/bash -xue
+#! /bin/bash
+set -xueo pipefail
+
 echo '--- Prepare environment'
 sudo apt-get install wget jq -y
 wget https://dl.google.com/go/go1.22.7.linux-amd64.tar.gz

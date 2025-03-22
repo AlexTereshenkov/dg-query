@@ -95,6 +95,29 @@ func TestCliSubgraph(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliComponents(t *testing.T) {
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs([]string{"components", "--dg=examples/dg.json"})
+	cmd.RootCmd.Execute()
+
+	expected := []byte(`
+	[
+		["foo-dep1-dep1.py","foo-dep1-dep2.py","foo-dep1.py","foo-dep2.py","foo.py"],
+		["spam-dep1.py","spam-dep2-dep1.py","spam-dep2-dep2.py","spam-dep2.py","spam.py"]
+	]
+	`)
+
+	var actualOutput [][]string
+	var expectedOutput [][]string
+	json.Unmarshal(buf.Bytes(), &actualOutput)
+	json.Unmarshal(expected, &expectedOutput)
+	assert.Equal(t, expectedOutput, actualOutput)
+	buf.Reset()
+}
+
 func TestCliMetrics(t *testing.T) {
 
 	var buf bytes.Buffer
