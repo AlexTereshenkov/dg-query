@@ -1,4 +1,5 @@
-#! /bin/bash -xue
+#! /bin/bash
+set -xueo pipefail
 
 echo '--- Build'
 bazel --version
