@@ -85,7 +85,32 @@ func TestDependenciesCommandPerfDeepGraphDepthLimit(t *testing.T) {
 	if elapsedTime.Seconds() > 5 {
 		t.Fatalf("Getting dependencies transitively out of a large graph took too long: %s.", elapsedTime)
 	}
+}
 
+/*
+Testing performance of getting leaves for a node in a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
+*/
+func TestLeavesCommandPerfDeepGraphDepthLimit(t *testing.T) {
+
+	startTime := time.Now()
+	nodesCount := 10000
+	MockReadFile := func(filePath string) ([]byte, error) {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists, nil
+	}
+
+	result, err := cmd.Leaves("mock.json", MockReadFile)
+	if err != nil {
+		t.Fail()
+	}
+	expected := []string{"1"}
+
+	assert.ElementsMatch(t, expected, result, "Failing assertion")
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 5 {
+		t.Fatalf("Getting leaves transitively out of a large graph took too long: %s.", elapsedTime)
+	}
 }
 
 /*

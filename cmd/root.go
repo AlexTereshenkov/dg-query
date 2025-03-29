@@ -52,6 +52,25 @@ var dependenciesCmd = &cobra.Command{
 	},
 }
 
+// getting all leaves in the dependency graph
+var leavesCmd = &cobra.Command{
+	Use:   "leaves",
+	Short: "Get nodes that no other node depends on",
+	Long:  `Get nodes that no other node depends on`,
+	Run: func(cmd *cobra.Command, targets []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+
+		result, err := leaves(filePath, DefaultReadFile)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		output := strings.Join(result, "\n")
+		cmd.OutOrStdout().Write([]byte(output))
+		cmd.OutOrStdout().Write([]byte("\n"))
+	},
+}
+
 // getting dependents of given targets in the dependency graph
 var dependentsCmd = &cobra.Command{
 	Use:     "dependents",
@@ -209,6 +228,7 @@ func init() {
 	RootCmd.AddCommand(dependenciesCmd)
 	RootCmd.AddCommand(dependentsCmd)
 	RootCmd.AddCommand(componentsCmd)
+	RootCmd.AddCommand(leavesCmd)
 
 	//make dg flag global for all commands as all of them will need dg data
 	RootCmd.PersistentFlags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
