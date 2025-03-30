@@ -40,13 +40,13 @@ func TestCliDependents(t *testing.T) {
 	buf.Reset()
 }
 
-func TestCliLeaves(t *testing.T) {
+func TestCliRoots(t *testing.T) {
 
 	var buf bytes.Buffer
 	cmd.RootCmd.SetOut(&buf)
 	cmd.RootCmd.SetErr(&buf)
 
-	cmd.RootCmd.SetArgs([]string{"leaves", "--dg=examples/dg.json"})
+	cmd.RootCmd.SetArgs([]string{"roots", "--dg=examples/dg.json"})
 	cmd.RootCmd.Execute()
 
 	expected := []string{"foo.py", "spam.py"}

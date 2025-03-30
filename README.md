@@ -60,8 +60,8 @@ Options:
 * specify depth when searching for dependents transitively (`--depth`)
 * include the build target itself in the output (`--reflexive`)
 
-### `leaves`
-Get nodes that no other node depends on. 
+### `roots`
+Get nodes that no other node depends on. The roots are also known as sources. 
 
 ### `paths`
 Get paths between individual targets.
