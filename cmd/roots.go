@@ -6,10 +6,10 @@ package cmd
 import "sort"
 
 // to be used in non-unit tests
-var Leaves = leaves
+var Roots = roots
 
-// leaves returns nodes that no other node depends on
-func leaves(filePath string, readFile ReadFileFunc) ([]string, error) {
+// roots returns nodes (aka sources) that no other node depends on
+func roots(filePath string, readFile ReadFileFunc) ([]string, error) {
 	jsonData, err := readFile(filePath)
 	if err != nil {
 		return nil, err

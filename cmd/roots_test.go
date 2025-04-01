@@ -9,13 +9,13 @@ import (
 	"github.com/stretchr/testify/assert"
 )
 
-type testCaseLeaves struct {
+type testCaseRoots struct {
 	input    []byte
 	expected []string
 }
 
-func TestLeaves(t *testing.T) {
-	cases := []testCaseLeaves{
+func TestRoots(t *testing.T) {
+	cases := []testCaseRoots{
 		// empty graph
 		{
 			input:    []byte(`{}`),
@@ -89,7 +89,7 @@ func TestLeaves(t *testing.T) {
 		},
 		// complex graph with some nodes that are not in the keys of the adjacency list;
 		// note "d", "e", and "g" that some nodes depend on, but they are not declared
-		// ensure the leaves are returned in sorted order
+		// ensure the roots are returned in sorted order
 		{
 			input: []byte(`
 		{
@@ -108,7 +108,7 @@ func TestLeaves(t *testing.T) {
 		MockReadFile := func(filePath string) ([]byte, error) {
 			return testCase.input, nil
 		}
-		result, err := leaves("mock.json", MockReadFile)
+		result, err := roots("mock.json", MockReadFile)
 		if err != nil {
 			t.Fail()
 		}

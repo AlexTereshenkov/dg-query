@@ -88,10 +88,10 @@ func TestDependenciesCommandPerfDeepGraphDepthLimit(t *testing.T) {
 }
 
 /*
-Testing performance of getting leaves for a node in a
+Testing performance of getting roots for a node in a
 deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
 */
-func TestLeavesCommandPerfDeepGraphDepthLimit(t *testing.T) {
+func TestRootsCommandPerfDeepGraphDepthLimit(t *testing.T) {
 
 	startTime := time.Now()
 	nodesCount := 10000
@@ -100,7 +100,7 @@ func TestLeavesCommandPerfDeepGraphDepthLimit(t *testing.T) {
 		return lists, nil
 	}
 
-	result, err := cmd.Leaves("mock.json", MockReadFile)
+	result, err := cmd.Roots("mock.json", MockReadFile)
 	if err != nil {
 		t.Fail()
 	}
