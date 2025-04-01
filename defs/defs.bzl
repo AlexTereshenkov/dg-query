@@ -15,5 +15,6 @@ def custom_go_test(
         data = data,
         deps = deps,
         tags = [tag],
+        # running `bazel test --config=windows //tests:all` on Windows would skip these tests
         target_compatible_with = ["@platforms//os:linux"],
     )
