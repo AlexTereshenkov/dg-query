@@ -40,5 +40,14 @@ use_repo(
     "com_github_stretchr_testify",
 )
 
+# one cannot register both Windows and Linux platforms here because it means Bazel will
+# attempt to download/setup Go toolchains for both platforms (e.g. running Bazel on
+# Windows would attempt to download Linux Go SDK which would lead to build failure);
+# the registration of platforms happens in the `.bazelrc` file instead, so for Windows
+# builds, add `--config=windows` and for Linux Docker builds, add `--config=docker`.
+
 # to add support for `--spawn_strategy=docker`
-register_execution_platforms("//platforms:docker")
+# register_execution_platforms(
+#     "//platforms:docker",
+#     "//platforms:windows"
+# )

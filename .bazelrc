@@ -7,6 +7,12 @@ test --test_output=all
 test --test_summary=detailed
 test --test_arg=-test.v
 
+# Windows builds only; by default, a Linux compatible platform is used
+common:windows --platforms=//platforms:windows
+
+# For Docker builds only
+common:docker --platforms=//platforms:docker
+
 # BuildBuddy remote cache configuration (read&write)
 build --bes_results_url=https://app.buildbuddy.io/invocation/
 build --bes_backend=grpcs://remote.buildbuddy.io
