@@ -55,6 +55,21 @@ func TestCliRoots(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliLeaves(t *testing.T) {
+
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs([]string{"leaves", "--dg=examples/dg.json"})
+	cmd.RootCmd.Execute()
+
+	expected := []string{"foo-dep1-dep1.py", "foo-dep1-dep2.py", "foo-dep2.py", "spam-dep1.py", "spam-dep2-dep1.py", "spam-dep2-dep2.py"}
+	actualOutput := strings.Split(buf.String(), "\n")[:len(expected)]
+	assert.Equal(t, expected, actualOutput)
+	buf.Reset()
+}
+
 func TestCliPaths(t *testing.T) {
 
 	var buf bytes.Buffer

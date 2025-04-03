@@ -11,7 +11,15 @@ test --test_arg=-test.v
 common:windows --platforms=//platforms:windows
 
 # For Docker builds only
+# It seems having platform.exec_properties attribute defined is not enough:
+# a Docker image needs to be specified even when not using RBE otherwise the following error
+# is raised: (20:41:20) ERROR: GoToolchainBinaryBuild external/rules_go~~go_sdk~workspace__download_0/builder 
+# [for tool] failed: Cannot execute GoToolchainBinaryBuild mnemonic with Docker, because no image could be 
+# found in the remote_execution_properties of the platform and no default image was set via --experimental_docker_image
 common:docker --platforms=//platforms:docker
+common:docker --spawn_strategy=docker
+common:docker --experimental_enable_docker_sandbox
+common:docker --experimental_docker_image="golang:1.22"
 
 # BuildBuddy remote cache configuration (read&write)
 build --bes_results_url=https://app.buildbuddy.io/invocation/
