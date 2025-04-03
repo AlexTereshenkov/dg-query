@@ -13,4 +13,7 @@ bazel test //... | sed 's/^=== //' | sed 's/^--- //'
 echo '--- Running a compiled CGo binary'
 bazel run //platforms/compiled:cgo-compiled
 
+echo '--- Building in a Docker container'
+bazel build --config="docker" //... 
+
 echo '--- Finish'

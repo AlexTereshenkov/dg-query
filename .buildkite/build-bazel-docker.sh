@@ -3,9 +3,7 @@ set -xueo pipefail
 
 echo '--- Build'
 bazel --version
-
-echo "common --show_timestamps" > .bazelrc.ci
-echo "build --build_metadata=ROLE=CI" >> .bazelrc.ci
+build-support/create-bazelrc-ci.sh
 
 # `--load` ensures that the image built is loaded into the local Docker environment, 
 # making it immediately available to run or reference by tag; otherwise, the image 
