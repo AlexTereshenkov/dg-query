@@ -63,6 +63,9 @@ Options:
 ### `roots`
 Get nodes that no other node depends on. The roots are also known as sources. 
 
+### `leaves`
+Get nodes that have no dependencies. The leaves are also known as sinks. 
+
 ### `paths`
 Get paths between individual targets.
 
