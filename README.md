@@ -87,6 +87,11 @@ modules or projects.
 Extract [subgraph](https://en.wikipedia.org/wiki/Glossary_of_graph_theory#subgraph) out of the dependency graph.
 This is useful when you want to visualize a subset of the dependency graph or study it closer.
 
+### `simplify`
+Simplify the dependency graph applying certain techniques. 
+Currently support: [Transitive reduction](https://en.wikipedia.org/wiki/Transitive_reduction). 
+This is useful when you want to make graph visualization less cluttered or to compact a very large graph.
+
 ### `metrics`
 Get dependency graph related metrics. A dependency graph (`--dg`) may be used,
 or a reverse dependency graph (`--rdg`) may be used, if you have one.

@@ -258,6 +258,29 @@ func TestSubgraphCommandPerfDeepGraph(t *testing.T) {
 }
 
 /*
+Testing performance of getting a simplified graph for a
+deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
+*/
+func TestSimplifyTransitiveReductionCommandPerfDeepGraph(t *testing.T) {
+
+	startTime := time.Now()
+	nodesCount := 10000
+	MockReadFile := func(filePath string) ([]byte, error) {
+		lists, _ := json.Marshal(createAdjacencyLists(nodesCount))
+		return lists, nil
+	}
+	result, err := cmd.SimplifyAdjacencyList("mock.json", MockReadFile, cmd.TechniqueTransitiveReduction)
+	if err != nil {
+		t.Fail()
+	}
+	assert.Equal(t, 10000, len(result), "Failing assertion")
+	elapsedTime := time.Since(startTime)
+	if elapsedTime.Seconds() > 1 {
+		t.Fatalf("Simplifying a large graph took too long: %s.", elapsedTime)
+	}
+}
+
+/*
 Testing performance of getting connected components for a root node in a
 deeply nested graph, i.e. {1: [2], 2: [3], 3: [4]..., N: [N+1]}
 */

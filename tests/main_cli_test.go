@@ -125,6 +125,23 @@ func TestCliSubgraph(t *testing.T) {
 	buf.Reset()
 }
 
+func TestCliSimplify(t *testing.T) {
+	var buf bytes.Buffer
+	cmd.RootCmd.SetOut(&buf)
+	cmd.RootCmd.SetErr(&buf)
+
+	cmd.RootCmd.SetArgs([]string{"simplify", "--dg=examples/dg-transitive-reduction.json", "--technique=transitive-reduction"})
+	cmd.RootCmd.Execute()
+
+	expected := []byte(`{"a": ["b"], "b": ["c"], "c": ["d"]}`)
+	var actualOutput cmd.AdjacencyList
+	var expectedOutput cmd.AdjacencyList
+	json.Unmarshal(buf.Bytes(), &actualOutput)
+	json.Unmarshal(expected, &expectedOutput)
+	assert.Equal(t, expectedOutput, actualOutput)
+	buf.Reset()
+}
+
 func TestCliComponents(t *testing.T) {
 	var buf bytes.Buffer
 	cmd.RootCmd.SetOut(&buf)

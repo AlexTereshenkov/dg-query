@@ -8,6 +8,9 @@ import (
 	"strings"
 )
 
+// to be used in non-unit tests
+var SimplifyAdjacencyList = simplifyAdjacencyList
+
 const (
 	TechniqueTransitiveReduction = "transitive-reduction"
 )
@@ -16,16 +19,16 @@ var allowedTechniques = []string{
 	TechniqueTransitiveReduction,
 }
 
-func isValidTechnique(metric string) bool {
+func isValidTechnique(technique string) bool {
 	for _, allowedTechnique := range allowedTechniques {
-		if metric == allowedTechnique {
+		if technique == allowedTechnique {
 			return true
 		}
 	}
 	return false
 }
 
-// listConnectedComponents lists connected components in a graph given a filepath
+// simplifyAdjacencyList simplifies the adjacency list by applying given technique
 func simplifyAdjacencyList(filePath string, readFile ReadFileFunc, technique string) (AdjacencyList, error) {
 	if !isValidTechnique(technique) {
 		log.Printf("invalid technique: %s. Allowed techniques are: %s\n", technique, strings.Join(allowedTechniques, ","))
