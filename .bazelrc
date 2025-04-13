@@ -28,7 +28,7 @@ build --remote_cache=grpcs://remote.buildbuddy.io
 build --remote_timeout=3600
 
 # BuildBuddy remote cache/execution recommended flags 
-build --experimental_remote_cache_compression
+build --remote_cache_compression
 build --experimental_remote_cache_compression_threshold=100
 build --nolegacy_important_outputs
 
