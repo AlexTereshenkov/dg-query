@@ -18,3 +18,4 @@ changelog:
       - "^docs:"
       - "^test:"
       - "^ci:"
+      - "^bazel:"
