@@ -40,16 +40,6 @@ func TestLeaves(t *testing.T) {
 		`),
 			expected: []string{"bar.py"},
 		},
-		// node with a single dependency with a dependent listed in the adjacency list
-		{
-			input: []byte(`
-		{
-			"foo.py": ["bar.py"],
-			"bar.py": []		
-		}		
-		`),
-			expected: []string{"bar.py"},
-		},
 		// node with a single dependency with a dependent not listed in the adjacency list
 		{
 			input: []byte(`

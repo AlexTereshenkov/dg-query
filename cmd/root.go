@@ -212,6 +212,25 @@ var componentsCmd = &cobra.Command{
 	},
 }
 
+var simplifyCmd = &cobra.Command{
+	Use:   "simplify",
+	Short: "Simplify the dependency graph by applying a requested technique",
+	Long:  `Simplify the dependency graph by applying a requested technique`,
+	Run: func(cmd *cobra.Command, targets []string) {
+		filePath, _ := cmd.Flags().GetString("dg")
+		technique, _ := cmd.Flags().GetString("technique")
+		result, err := simplifyAdjacencyList(filePath, DefaultReadFile, technique)
+		if err != nil {
+			fmt.Println(err)
+			os.Exit(1)
+		}
+		resultJson, _ := json.MarshalIndent(result, "", "  ")
+		cmd.OutOrStdout().Write(resultJson)
+		cmd.OutOrStdout().Write([]byte("\n"))
+
+	},
+}
+
 // JSON file with the dependency graph represented as an adjacency list
 var dg string
 var rdg string
@@ -225,6 +244,9 @@ var toTarget string
 
 // subgraph command root node
 var rootNode string
+
+// simplify command technique to apply
+var simplifyTechnique string
 
 // Execute adds all child commands to the root command and sets flags appropriately.
 // This is called by main.main(). It only needs to happen once to the RootCmd.
@@ -249,6 +271,7 @@ func init() {
 	RootCmd.AddCommand(componentsCmd)
 	RootCmd.AddCommand(rootsCmd)
 	RootCmd.AddCommand(leavesCmd)
+	RootCmd.AddCommand(simplifyCmd)
 
 	//make dg flag global for all commands as all of them will need dg data
 	RootCmd.PersistentFlags().StringVar(&dg, "dg", "", "JSON file with the dependency graph represented as an adjacency list")
@@ -271,6 +294,8 @@ func init() {
 	dependentsCmd.Flags().Int("depth", 0, "Depth of search for transitive dependents")
 
 	subgraphCmd.Flags().StringVar(&rootNode, "root", "", "Root node for the subgraph to extract")
+
+	simplifyCmd.Flags().StringVar(&simplifyTechnique, "technique", "", "Technique to simplify the dependency graph")
 
 	// Cobra also supports local flags, which will only run
 	// when this action is called directly.
