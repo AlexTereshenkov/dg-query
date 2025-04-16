@@ -12,4 +12,8 @@ run-go:
 	go run main.go dependencies --dg="examples/dg-real.json" foo.py spam.py
 
 build-bazel:
-	.buildkite/build-bazel.sh
+	bazel run //:gazelle
+	bazel run //:buildifier
+	bazel run @rules_go//go -- fmt ./...
+	bazel build //...
+	bazel test //...

@@ -1,6 +1,7 @@
 #!/usr/bin/env bash
 
 echo "common --show_timestamps" > .bazelrc.ci
+echo "common --config=bb" >> .bazelrc.ci
 echo "build --build_metadata=ROLE=CI" >> .bazelrc.ci
 
 # this secret is declared in Buildkite secrets
@@ -12,4 +13,4 @@ else
     # runs locally and the api key should be available via the environment variable
     BUILD_BUDDY_API_KEY=${BUILD_BUDDY_API_KEY}
 fi
-echo "build --remote_header=x-buildbuddy-api-key=$BUILD_BUDDY_API_KEY" >> .bazelrc.ci
+echo "build:bb --remote_header=x-buildbuddy-api-key=$BUILD_BUDDY_API_KEY" >> .bazelrc.ci
