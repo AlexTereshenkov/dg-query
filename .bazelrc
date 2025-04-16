@@ -22,14 +22,14 @@ common:docker --experimental_enable_docker_sandbox
 common:docker --experimental_docker_image="golang:1.22"
 
 # BuildBuddy remote cache configuration (read&write)
-build --bes_results_url=https://app.buildbuddy.io/invocation/
-build --bes_backend=grpcs://remote.buildbuddy.io
-build --remote_cache=grpcs://remote.buildbuddy.io
-build --remote_timeout=3600
+build:bb --bes_results_url=https://app.buildbuddy.io/invocation/
+build:bb --bes_backend=grpcs://remote.buildbuddy.io
+build:bb --remote_cache=grpcs://remote.buildbuddy.io
+build:bb --remote_timeout=3600
 
 # BuildBuddy remote cache/execution recommended flags 
-build --remote_cache_compression
-build --experimental_remote_cache_compression_threshold=100
-build --nolegacy_important_outputs
+build:bb --remote_cache_compression
+build:bb --experimental_remote_cache_compression_threshold=100
+build:bb --nolegacy_important_outputs
 
 try-import %workspace%/.bazelrc.ci

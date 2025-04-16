@@ -12,7 +12,7 @@ echo 'Buildifier'
 bazel run //:buildifier-check
 bazel run //:buildifier
 echo 'gofmt'
-output=$(bazel run @rules_go//go -- fmt .) && [[ -n "$output" ]] && echo "$output" && exit 1 || echo "No formatting required"
+output=$(bazel run @rules_go//go -- fmt ./...) && [[ -n "$output" ]] && echo "$output" && exit 1 || echo "No formatting required"
 
 echo '--- Run'
 bazel build //... && bazel-bin/dg-query_/dg-query dependencies --dg="examples/dg-real.json" foo.py spam.py
