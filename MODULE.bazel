@@ -21,10 +21,6 @@ python.toolchain(
     python_version = "3.11",
 )
 
-# this is to manage third-party dependencies
-go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
-go_deps.from_file(go_mod = "//:go.mod")
-
 # https://github.com/bazel-contrib/rules_go/blob/master/docs/go/core/bzlmod.md
 go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
 
@@ -34,13 +30,8 @@ go_sdk.download(version = "1.22.0")
 # this is to enable nogo static analysis checker and being able to run arbitrary Go commands
 go_sdk.nogo(nogo = "//:nogo")
 
-# all *direct* Go dependencies of the module have to be listed explicitly here
-use_repo(
-    go_deps,
-    "com_github_spf13_cast",
-    "com_github_spf13_cobra",
-    "com_github_stretchr_testify",
-)
+# avoid causing changes to the MODULE.bazel every time a new Go dependency is added
+include("//:go.mod.MODULE.bazel")
 
 # one cannot register both Windows and Linux platforms here because it means Bazel will
 # attempt to download/setup Go toolchains for both platforms (e.g. running Bazel on

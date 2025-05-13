@@ -1,0 +1,14 @@
+# this file is included into the main MODULE.bazel file;
+# see https://bazel.build/rules/lib/globals/module#include
+
+# this is to manage third-party dependencies
+go_deps = use_extension("@gazelle//:extensions.bzl", "go_deps")
+go_deps.from_file(go_mod = "//:go.mod")
+
+# all *direct* Go dependencies of the module have to be listed explicitly here
+use_repo(
+    go_deps,
+    "com_github_spf13_cast",
+    "com_github_spf13_cobra",
+    "com_github_stretchr_testify",
+)
