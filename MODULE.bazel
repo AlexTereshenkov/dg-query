@@ -11,6 +11,16 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
 bazel_dep(name = "lcov", version = "2.3")
 bazel_dep(name = "platforms", version = "0.0.11")
 
+# `bazel mod tidy` command relies on `buildozer` and this is declared in
+# https://github.com/bazelbuild/bazel/blob/release-8.1.1/src/MODULE.tools#L9;
+# to ensure that the binary of the same version is used by any other tool in
+# the project, one can override its version like this. See
+# https://bazel.build/rules/lib/globals/module#single_version_override
+single_version_override(
+    module_name = "buildozer",
+    version = "8.2.0",
+)
+
 # a Python toolchain is a dependency for a build action that is used to run tests with code
 # coverage enabled; the build in Buildkite runs under root inside a Docker container, but the
 # toolchain doesn't like that; see https://github.com/bazelbuild/rules_python/pull/713
