@@ -4,11 +4,11 @@ load("//:defs/defs.bzl", "custom_go_test")
 custom_go_test(
     name = "dg-query_integration_test",
     srcs = ["main_cli_test.go"],
-    tag = "integration",
+    tags = ["integration"],
 )
 
 custom_go_test(
     name = "dg-query_performance_test",
     srcs = ["main_perf_test.go"],
-    tag = "performance",
+    tags = ["performance"],
 )
