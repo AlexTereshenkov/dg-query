@@ -11,6 +11,8 @@ bazel_dep(name = "buildifier_prebuilt", version = "8.0.3")
 bazel_dep(name = "lcov", version = "2.3")
 bazel_dep(name = "platforms", version = "0.0.11")
 
+bazel_dep(name = "tweag-credential-helper", version = "0.0.6", dev_dependency = True)
+
 # `bazel mod tidy` command relies on `buildozer` and this is declared in
 # https://github.com/bazelbuild/bazel/blob/release-8.1.1/src/MODULE.tools#L9;
 # to ensure that the binary of the same version is used by any other tool in
@@ -35,7 +37,7 @@ python.toolchain(
 go_sdk = use_extension("@rules_go//go:extensions.bzl", "go_sdk")
 
 # using the same version as in `go.mod`
-go_sdk.download(version = "1.23.0")
+go_sdk.download(version = "1.24.0")
 
 # this is to enable nogo static analysis checker and being able to run arbitrary Go commands
 go_sdk.nogo(nogo = "//:nogo")
@@ -64,6 +66,10 @@ bazel_dep(name = "rules_img", version = "0.0.0")
 local_path_override(
     module_name = "rules_img",
     path = "../tweag/rules_img",
+)
+# required by rules_img
+register_toolchains(
+    "@rules_img//img/source_toolchain:all",
 )
 
 pull = use_repo_rule("@rules_img//img/private/repository_rules:pull.bzl", "pull")

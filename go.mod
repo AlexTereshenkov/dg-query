@@ -1,6 +1,6 @@
 module github.com/AlexTereshenkov/dg-query
 
-go 1.23
+go 1.24
 
 require (
 	github.com/spf13/cast v1.7.1
