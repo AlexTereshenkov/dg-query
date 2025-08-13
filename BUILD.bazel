@@ -81,7 +81,7 @@ image_manifest(
 image_push(
     name = "push",
     image = ":app_image",
-    registry = "index.docker.io",
-    repository = "username-to-be-replaced/my-project",
+    registry = "localhost:5000",
+    repository = "repository/my-project",
     tag = "latest",
 )

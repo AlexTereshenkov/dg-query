@@ -62,18 +62,7 @@ include("//:go.mod.MODULE.bazel")
 # likely because it's incompatible with the latest Bazel version used in the project;
 # upgrading the rules_apple version avoids the error
 bazel_dep(name = "rules_apple", version = "4.1.1")
-bazel_dep(name = "rules_img", version = "0.0.0")
-
-# once the repository is public, but not yet in BCR
-# git_override(
-#    module_name = "rules_img",
-#    remote = "https://github.com/tweag/rules_img",
-#    commit = "7be6739e130803c07f32298cd0303574bc549f8a",
-#)
-local_path_override(
-    module_name = "rules_img",
-    path = "../tweag/rules_img",
-)
+bazel_dep(name = "rules_img", version = "0.1.4")
 # required by rules_img
 register_toolchains(
     "@rules_img//img/source_toolchain:all",
