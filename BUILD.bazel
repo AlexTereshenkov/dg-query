@@ -66,6 +66,7 @@ image_layer(
         "/app/bin/dg-query": "//:dg-query",
     },
     compress = "zstd",
+    tags = ["manual"],
 )
 
 # Build a container image
@@ -75,6 +76,7 @@ image_manifest(
     layers = [
         ":app_layer",
     ],
+    tags = ["manual"],
 )
 
 # Prepare the image push
@@ -84,4 +86,5 @@ image_push(
     registry = "localhost:5000",
     repository = "repository/my-project",
     tag = "latest",
+    tags = ["manual"],
 )
