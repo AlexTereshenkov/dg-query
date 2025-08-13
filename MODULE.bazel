@@ -64,11 +64,6 @@ include("//:go.mod.MODULE.bazel")
 bazel_dep(name = "rules_apple", version = "4.1.1")
 bazel_dep(name = "rules_img", version = "0.1.4")
 
-# required by rules_img
-register_toolchains(
-    "@rules_img//img/source_toolchain:all",
-)
-
 pull = use_repo_rule("@rules_img//img/private/repository_rules:pull.bzl", "pull")
 
 pull(
