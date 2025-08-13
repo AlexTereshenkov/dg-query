@@ -45,5 +45,6 @@ common --@rules_img//img/settings:push_strategy=eager
 
 # https://github.com/tweag/credential-helper/blob/main/docs/providers/oci.md
 common --credential_helper=index.docker.io=%workspace%/tools/credential-helper
+common --credential_helper=localhost=%workspace%/tools/credential-helper
 
 try-import %workspace%/.bazelrc.ci

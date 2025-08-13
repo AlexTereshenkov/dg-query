@@ -5,6 +5,9 @@ echo '--- Build'
 bazel --version
 build-support/create-bazelrc-ci.sh
 
+echo '--- Authenticate with Docker registry'
+bazel run @tweag-credential-helper//installer
+
 echo '--- Start Docker registry'
 docker run -d -p 5000:5000 --name registry registry:2
 curl http://localhost:5000/v2/
