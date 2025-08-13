@@ -1,6 +1,9 @@
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("@gazelle//:def.bzl", "gazelle")
 load("@rules_go//go:def.bzl", "TOOLS_NOGO", "go_binary", "go_library", "nogo")
+load("@rules_img//img:image.bzl", "image_manifest")
+load("@rules_img//img:layer.bzl", "image_layer")
+load("@rules_img//img:push.bzl", "image_push")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 gazelle(name = "gazelle")
@@ -54,4 +57,34 @@ sh_binary(
         "//cmd:exported_go_files",
     ],
     visibility = ["//visibility:public"],
+)
+
+# Create a layer from files
+image_layer(
+    name = "app_layer",
+    srcs = {
+        "/app/bin/dg-query": "//:dg-query",
+    },
+    compress = "zstd",
+    tags = ["manual"],
+)
+
+# Build a container image
+image_manifest(
+    name = "app_image",
+    base = "@ubuntu",
+    layers = [
+        ":app_layer",
+    ],
+    tags = ["manual"],
+)
+
+# Prepare the image push
+image_push(
+    name = "push",
+    image = ":app_image",
+    registry = "localhost:5000",
+    repository = "repository/my-project",
+    tag = "latest",
+    tags = ["manual"],
 )

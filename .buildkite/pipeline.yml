@@ -20,6 +20,15 @@ steps:
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
       - .buildkite/build-bazel-docker.sh
 
+  - label: ":bazel: Build Docker image with rules_img"
+    commands:
+      - "echo '--- Prepare environment'"
+      - sudo apt-get install wget
+      - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
+      - chmod +x bazelisk-linux-amd64
+      - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
+      - .buildkite/build-bazel-rules-img.sh
+
   - label: ":bazel: Build remote (BuildBuddy)"
     commands:
       - "echo '--- Prepare environment'"
