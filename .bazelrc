@@ -32,4 +32,19 @@ build:bb --remote_cache_compression
 build:bb --experimental_remote_cache_compression_threshold=100
 build:bb --nolegacy_important_outputs
 
+# The compression algorithm to use ("gzip" or "zstd")
+common --@rules_img//img/settings:compress=zstd
+
+# Support for seekable eStargz layers
+# with the containerd stargz-snapshotter
+common --@rules_img//img/settings:estargz=enabled
+
+# The push strategy to use (see below for more info).
+# "eager", "lazy", "cas_registry", or "bes"
+common --@rules_img//img/settings:push_strategy=eager
+
+# https://github.com/tweag/credential-helper/blob/main/docs/providers/oci.md
+common --credential_helper=index.docker.io=%workspace%/tools/credential-helper
+common --credential_helper=localhost=%workspace%/tools/credential-helper
+
 try-import %workspace%/.bazelrc.ci
