@@ -100,3 +100,5 @@ Metrics:
 * dependency count (optionally, transitively)
 * dependent count (optionally, transitively)
 * [connected components](https://en.wikipedia.org/wiki/Component_(graph_theory)) count (few components suggests a very tight graph)
+
+Test
