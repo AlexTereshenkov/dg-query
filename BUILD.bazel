@@ -15,6 +15,7 @@ bazel_env(
         "go": "@rules_go//go",
         "goimports": "@org_golang_x_tools//cmd/goimports:goimports",
     },
+    tag = ["manual"],
 )
 
 gazelle(name = "gazelle")
