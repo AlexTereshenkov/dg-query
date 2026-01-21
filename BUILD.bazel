@@ -9,13 +9,13 @@ load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
 
 bazel_env(
     name = "bazel_env",
+    tags = ["manual"],
     tools = {
         # Tools can be specified as labels.
         "buildifier": "@buildifier_prebuilt//:buildifier",
         "go": "@rules_go//go",
         "goimports": "@org_golang_x_tools//cmd/goimports:goimports",
     },
-    tags = ["manual"],
 )
 
 gazelle(name = "gazelle")
