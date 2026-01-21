@@ -60,14 +60,17 @@ go_binary(
 sh_binary(
     name = "run_coverage_with_genhtml",
     srcs = ["scripts/codecov.sh"],
-    args = ["$(location @lcov//:bin/genhtml)"],
+    args = ["$(location @lcov//:genhtml)"],
     data = [
-        "@lcov//:bin/genhtml",
+        "@lcov//:genhtml",
         # if for some reason there will be a problem to refer to files with a `glob` or `filegroup`
         # (the files are not included into the runfiles directory for some reason), you can list
         # them individually here
         "//cmd:exported_go_files",
     ],
+    # this is required to bring launcher wrapper to initialize runfiles;
+    # see https://github.com/bazelbuild/rules_shell/pull/38
+    use_bash_launcher = True,
     visibility = ["//visibility:public"],
 )
 
