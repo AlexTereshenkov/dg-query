@@ -6,8 +6,5 @@ echo "Running codecov.sh Shell script to generate the HTML code coverage report"
 
 # Define the path to the genhtml binary inside the extracted lcov package
 GENHTML_BINARY=$1
-echo $GENHTML_BINARY
 # Generate the HTML report using genhtml from the downloaded package
-RUNFILES_ROOT=$PWD
-echo $RUNFILES_ROOT
 $GENHTML_BINARY -o $BUILD_WORKSPACE_DIRECTORY/coverage-html $BUILD_WORKSPACE_DIRECTORY/bazel-out/_coverage/_coverage_report.dat
