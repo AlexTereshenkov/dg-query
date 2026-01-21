@@ -11,4 +11,5 @@ use_repo(
     "com_github_spf13_cast",
     "com_github_spf13_cobra",
     "com_github_stretchr_testify",
+    "org_golang_x_tools",
 )

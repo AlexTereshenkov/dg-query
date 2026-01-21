@@ -12,6 +12,7 @@ bazel_dep(name = "platforms", version = "0.0.11", dev_dependency = True)
 bazel_dep(name = "gazelle", version = "0.43.0", dev_dependency = True)
 bazel_dep(name = "buildifier_prebuilt", version = "8.2.0.2", dev_dependency = True)
 bazel_dep(name = "tweag-credential-helper", version = "0.0.6", dev_dependency = True)
+bazel_dep(name = "bazel_env.bzl", version = "0.5.0", dev_dependency = True)
 
 # `bazel mod tidy` command relies on `buildozer` and this is declared in
 # https://github.com/bazelbuild/bazel/blob/release-8.1.1/src/MODULE.tools#L9;

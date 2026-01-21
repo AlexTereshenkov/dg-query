@@ -1,3 +1,4 @@
+load("@bazel_env.bzl", "bazel_env")
 load("@buildifier_prebuilt//:rules.bzl", "buildifier")
 load("@gazelle//:def.bzl", "gazelle")
 load("@rules_go//go:def.bzl", "TOOLS_NOGO", "go_binary", "go_library", "nogo")
@@ -5,6 +6,16 @@ load("@rules_img//img:image.bzl", "image_manifest")
 load("@rules_img//img:layer.bzl", "image_layer")
 load("@rules_img//img:push.bzl", "image_push")
 load("@rules_shell//shell:sh_binary.bzl", "sh_binary")
+
+bazel_env(
+    name = "bazel_env",
+    tools = {
+        # Tools can be specified as labels.
+        "buildifier": "@buildifier_prebuilt//:buildifier",
+        "go": "@rules_go//go",
+        "goimports": "@org_golang_x_tools//cmd/goimports:goimports",
+    },
+)
 
 gazelle(name = "gazelle")
 
