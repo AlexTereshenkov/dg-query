@@ -2,7 +2,7 @@ steps:
   - label: ":bazel: Build"
     commands:
       - "echo '--- Prepare environment'"
-      - sudo apt-get install wget tree libdatetime-perl libdatetime-format-dateparse-perl libcapture-tiny-perl -y
+      - sudo apt-get update && sudo apt install wget tree libdatetime-perl libdatetime-format-dateparse-perl libcapture-tiny-perl -y
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
@@ -14,7 +14,7 @@ steps:
   - label: ":bazel: Build in Docker"
     commands:
       - "echo '--- Prepare environment'"
-      - sudo apt-get install wget
+      - sudo apt-get update && sudo apt-get install wget
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
@@ -23,7 +23,7 @@ steps:
   - label: ":bazel: Build Docker image with rules_img"
     commands:
       - "echo '--- Prepare environment'"
-      - sudo apt-get install wget
+      - sudo apt-get update && sudo apt-get install wget
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
@@ -32,7 +32,7 @@ steps:
   - label: ":bazel: Build remote (BuildBuddy)"
     commands:
       - "echo '--- Prepare environment'"
-      - sudo apt-get install wget
+      - sudo apt-get update && sudo apt-get install wget
       - wget https://github.com/bazelbuild/bazelisk/releases/download/v1.20.0/bazelisk-linux-amd64
       - chmod +x bazelisk-linux-amd64
       - sudo mv bazelisk-linux-amd64 /usr/local/bin/bazel
